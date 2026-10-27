@@ -256,8 +256,13 @@ input[type=text], input[type=date] {
     <div class="list" id="list"></div>
   </section>
 
+  <section class="card" id="famcard" aria-label="Sincronizar">
+    <div class="chead"><h2 style="text-transform:none">Família</h2><button type="button" class="linkbtn" id="sopen">Sincronizar</button></div>
+    <p class="hint" id="sstat" style="margin:8px 0 0"></p>
+  </section>
+
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 22</p>
+  <p class="note" style="opacity:.6">Versão 23</p>
 </div>
 
 <button class="fab" id="add" type="button">+ Novo lançamento</button>
@@ -348,6 +353,31 @@ input[type=text], input[type=date] {
       <li><b>Revise 1 vez por semana</b> (5 minutos): compare o que gastou com o limite e ajuste o ritmo.</li>
     </ul></details>
     <div class="actions" style="grid-template-columns:1fr"><button type="button" class="btn primary" id="dclose">Fechar</button></div>
+  </div>
+</div>
+
+<div class="backdrop" id="sbd" hidden></div>
+<div class="sheet" id="ssheet" role="dialog" aria-modal="true" aria-label="Sincronizar com a família" hidden>
+  <div class="iwrap">
+    <h2 style="font-size:18px;margin:0">Sincronizar com a família</h2>
+    <div id="s-off">
+      <p class="hint" style="margin:0 0 10px">Use o <b>mesmo código</b> nos dois celulares e os lançamentos e metas ficam iguais nos dois. Escolha um código longo e não passe para outras pessoas: quem souber o código vê os dados.</p>
+      <label class="hint" for="s-input">Código da família (mínimo 16 letras ou números)</label>
+      <input id="s-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:100%;margin-top:6px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);font-size:16px;color:inherit">
+      <p class="hint" id="s-err" style="color:var(--bad,#c0392b)"></p>
+      <div style="display:grid;gap:8px;margin-top:8px">
+        <button type="button" class="btn" id="s-gen">Gerar um código para mim</button>
+        <button type="button" class="btn primary" id="s-go">Ativar sincronização</button>
+      </div>
+    </div>
+    <div id="s-on" hidden>
+      <p class="hint" style="margin:0">Código desta família (digite igual no outro celular):</p>
+      <p id="s-code" class="num" style="font-size:20px;font-weight:700;letter-spacing:.5px;word-break:break-all;margin:6px 0 10px"></p>
+      <p class="hint" id="s-state" style="margin:0 0 10px"></p>
+      <button type="button" class="btn" id="s-stop">Desligar neste aparelho</button>
+      <p class="hint">Ao desligar, os dados continuam salvos aqui, mas deixam de acompanhar o outro celular.</p>
+    </div>
+    <div class="actions" style="grid-template-columns:1fr"><button type="button" class="btn primary" id="sclose">Fechar</button></div>
   </div>
 </div>
 
@@ -652,14 +682,15 @@ input[type=text], input[type=date] {
       col.doc(tx.id).set(tx).catch(function () { $('note').textContent = 'Não foi possível salvar agora. Tente de novo.'; });
     } else {
       var i = txs.findIndex(function (t) { return t.id === tx.id; });
+      tx.upd = Date.now();
       if (i > -1) txs[i] = tx; else txs.push(tx);
-      lsSave(); render();
+      lsSave(); render(); pushTx(tx);
     }
   }
   function persistDel(id) {
     if (col) {
       col.doc(id).delete().catch(function () { $('note').textContent = 'Não foi possível excluir agora. Tente de novo.'; });
-    } else { txs = txs.filter(function (t) { return t.id !== id; }); lsSave(); render(); }
+    } else { txs = txs.filter(function (t) { return t.id !== id; }); lsSave(); render(); apag[id] = Date.now(); saveApag(); pushDel(id, apag[id]); }
   }
 
   $('prev').onclick = function () { month = shiftMonth(month, -1); render(); };
@@ -726,7 +757,7 @@ input[type=text], input[type=date] {
   }
 
   (function () {
-    var ids = ['sheet', 'isheet', 'msheet', 'lsheet', 'dsheet'];
+    var ids = ['sheet', 'isheet', 'msheet', 'lsheet', 'dsheet', 'ssheet'];
     function sync() { var o = ids.some(function (i) { var e = $(i); return e && !e.hidden; }); document.body.classList.toggle('lock', o); }
     ids.forEach(function (i) { var e = $(i); if (e) new MutationObserver(sync).observe(e, { attributes: true, attributeFilter: ['hidden'] }); });
     sync();
@@ -815,7 +846,7 @@ input[type=text], input[type=date] {
     } catch (e) {}
     return emptyMetas();
   }
-  function saveMetas() { try { localStorage.setItem(LSM, JSON.stringify(metas)); } catch (e) {} }
+  function saveMetas() { try { localStorage.setItem(LSM, JSON.stringify(metas)); } catch (e) {} metasUpd = Date.now(); try { localStorage.setItem(LSMU, String(metasUpd)); } catch (e) {} pushMetas(); }
   var metas = loadMetas(), draft = null;
   var mlabel = function (ym) { var p = ym.split('-'); return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); };
   var moneyStr = function (v) { return v > 0 ? maskCents(Math.round(v * 100)) : ''; };
@@ -1104,8 +1135,8 @@ input[type=text], input[type=date] {
       list.forEach(function (tx) { chain = chain.then(function () { return col.doc(tx.id).set(tx); }); });
       return chain.catch(function () { $('note').textContent = 'Nem todos os lançamentos foram salvos. Importe o arquivo de novo: os que já entraram não duplicam.'; });
     }
-    list.forEach(function (tx) { txs.push(tx); });
-    lsSave(); render();
+    list.forEach(function (tx) { tx.upd = Date.now(); txs.push(tx); });
+    lsSave(); render(); list.forEach(pushTx);
     return Promise.resolve();
   }
   var impInfo = {}, impAutoOff = 0;
@@ -1293,12 +1324,166 @@ input[type=text], input[type=date] {
     });
   };
 
+  // ---------- sincronização com a família (Firestore) ----------
+  var FBCFG = { apiKey: "AIzaSyDTNn6HETum6feeZc7-JgMm--E7WObBkyQ", authDomain: "financas-casa-19bd6.firebaseapp.com", projectId: "financas-casa-19bd6", storageBucket: "financas-casa-19bd6.firebasestorage.app", messagingSenderId: "261543645229", appId: "1:261543645229:web:c6b427eba2e21eb7f228a4" };
+  var SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  var LSF = 'financas:familia', LSD = 'financas:apagados', LSMU = 'financas:metas-upd';
+  var apag = {}; try { apag = JSON.parse(localStorage.getItem(LSD) || '{}') || {}; } catch (e) {}
+  var metasUpd = 0; try { metasUpd = +localStorage.getItem(LSMU) || 0; } catch (e) {}
+  var fsdb = null, famPath = null, unsubT = null, unsubM = null, firstT = true, persTried = false;
+  function saveApag() { try { localStorage.setItem(LSD, JSON.stringify(apag)); } catch (e) {} }
+  function getFam() { try { return localStorage.getItem(LSF) || ''; } catch (e) { return ''; } }
+  function fmtCode(c) { return c.replace(/(.{5})(?=.)/g, '$1-'); }
+  function setSync(msg) {
+    var on = !!getFam();
+    $('sstat').textContent = on ? 'Ligada · ' + msg : 'Desligada. Toque em Sincronizar para usar o mesmo app em dois celulares.';
+    $('s-state').textContent = msg;
+  }
+  function loadScript(src) {
+    return new Promise(function (ok, no) {
+      var el = document.createElement('script'); el.src = src; el.crossOrigin = 'anonymous';
+      el.onload = ok; el.onerror = function () { no(new Error('sdk')); }; document.head.appendChild(el);
+    });
+  }
+  function loadSdk() {
+    if (window.firebase && firebase.firestore) return Promise.resolve();
+    return loadScript(SDK + 'firebase-app-compat.js').then(function () { return loadScript(SDK + 'firebase-firestore-compat.js'); });
+  }
+  function sha(str) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('').slice(0, 40);
+    });
+  }
+  function clean(o) { return JSON.parse(JSON.stringify(o)); }
+  function syncErr() { setSync('Sem conexão. Os dados continuam salvos neste aparelho.'); }
+  function pushTx(tx) {
+    if (!famPath || !fsdb) return;
+    try { fsdb.collection(famPath + '/txs').doc(tx.id).set(clean(tx)).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function pushDel(id, ts) {
+    if (!famPath || !fsdb) return;
+    try { fsdb.collection(famPath + '/txs').doc(id).set({ id: id, del: true, upd: ts }).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function pushMetas() {
+    if (!famPath || !fsdb) return;
+    try { fsdb.doc(famPath + '/config/metas').set({ json: JSON.stringify(metas), upd: metasUpd }).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function applyRemoteTx(id, r) {
+    var ru = +r.upd || 0, i = txs.findIndex(function (t) { return t.id === id; }), l = i > -1 ? txs[i] : null;
+    if (r.del) {
+      if ((apag[id] || 0) < ru) apag[id] = ru;
+      if (l && ru >= (l.upd || 0)) { txs.splice(i, 1); return true; }
+      if (l) pushTx(l);
+      return false;
+    }
+    var du = apag[id] || 0;
+    if (!l && du > ru) { pushDel(id, du); return false; }
+    if (!l) { delete apag[id]; txs.push(clean(r)); return true; }
+    if (ru > (l.upd || 0)) { txs[i] = clean(r); return true; }
+    if ((l.upd || 0) > ru) pushTx(l);
+    return false;
+  }
+  function dedupeImp() {
+    var seen = {}, rm = [];
+    txs.slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; }).forEach(function (t) {
+      if (!t.imp) return;
+      if (seen[t.imp]) rm.push(t); else seen[t.imp] = 1;
+    });
+    rm.forEach(function (t) { txs.splice(txs.indexOf(t), 1); apag[t.id] = Date.now(); pushDel(t.id, apag[t.id]); });
+    return rm.length > 0;
+  }
+  function onTxSnap(snap) {
+    var changed = false, fromCache = !!(snap.metadata && snap.metadata.fromCache);
+    snap.docChanges().forEach(function (c) {
+      if (c.type === 'removed') return;
+      var d = c.doc;
+      if (d.metadata && d.metadata.hasPendingWrites) return;
+      if (applyRemoteTx(d.id, d.data())) changed = true;
+    });
+    if (firstT && !fromCache) {
+      firstT = false;
+      var seen = {}; snap.docs.forEach(function (d) { seen[d.id] = 1; });
+      txs.forEach(function (t) { if (!seen[t.id]) { if (!t.upd) t.upd = 1; pushTx(t); } });
+      Object.keys(apag).forEach(function (id) { if (!seen[id]) pushDel(id, apag[id]); });
+      changed = true;
+    }
+    if (dedupeImp()) changed = true;
+    if (changed) { lsSave(); saveApag(); render(); }
+    setSync(fromCache ? 'Sem conexão. Os dados continuam salvos neste aparelho.' : 'Sincronizado');
+  }
+  function metasVazias(m) { return !m.gastoTotal && !m.receita && !m.guardar.length && !Object.keys(m.gastoCats).length; }
+  function onMetaSnap(s) {
+    if (s.metadata && s.metadata.hasPendingWrites) return;
+    if (!s.exists) {
+      if (!(s.metadata && s.metadata.fromCache) && !metasVazias(metas)) { if (!metasUpd) metasUpd = 1; pushMetas(); }
+      return;
+    }
+    var r = s.data(), ru = +r.upd || 0;
+    if (ru > metasUpd) {
+      try {
+        var m = JSON.parse(r.json);
+        metas = { gastoTotal: +m.gastoTotal || 0, gastoCats: m.gastoCats || {}, receita: +m.receita || 0, guardar: Array.isArray(m.guardar) ? m.guardar : [] };
+        metasUpd = ru;
+        try { localStorage.setItem(LSM, JSON.stringify(metas)); localStorage.setItem(LSMU, String(ru)); } catch (e) {}
+        render();
+      } catch (e) {}
+    } else if (metasUpd > ru) pushMetas();
+  }
+  function syncStop() {
+    if (unsubT) { unsubT(); unsubT = null; } if (unsubM) { unsubM(); unsubM = null; }
+    famPath = null;
+  }
+  function syncStart(code) {
+    syncStop(); setSync('Conectando…');
+    return loadSdk().then(function () { return sha('financas|' + code); }).then(function (h) {
+      if (!firebase.apps.length) firebase.initializeApp(FBCFG);
+      fsdb = firebase.firestore();
+      if (!persTried) { persTried = true; try { fsdb.enablePersistence({ synchronizeTabs: true }).catch(function () {}); } catch (e) {} }
+      famPath = 'familias/' + h; firstT = true;
+      unsubT = fsdb.collection(famPath + '/txs').onSnapshot(onTxSnap, syncErr);
+      unsubM = fsdb.doc(famPath + '/config/metas').onSnapshot(onMetaSnap, syncErr);
+    });
+  }
+  function normCode(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  function renderSync() {
+    var c = getFam();
+    $('s-off').hidden = !!c; $('s-on').hidden = !c;
+    $('s-code').textContent = c ? fmtCode(c) : '';
+    $('s-err').textContent = '';
+    setSync($('s-state').textContent || '…');
+  }
+  function openSync() { renderSync(); $('sbd').hidden = false; $('ssheet').hidden = false; $('ssheet').scrollTop = 0; }
+  function closeSync() { $('sbd').hidden = true; $('ssheet').hidden = true; }
+  $('sopen').onclick = openSync; $('sclose').onclick = closeSync; $('sbd').onclick = closeSync;
+  $('s-gen').onclick = function () {
+    var al = 'abcdefghjkmnpqrstuvwxyz23456789', a = new Uint8Array(20), o = '';
+    crypto.getRandomValues(a);
+    for (var i = 0; i < 20; i++) o += al.charAt(a[i] % al.length);
+    $('s-input').value = fmtCode(o);
+  };
+  $('s-go').onclick = function () {
+    var code = normCode($('s-input').value);
+    if (code.length < 16) { $('s-err').textContent = 'O código precisa ter pelo menos 16 letras ou números.'; return; }
+    $('s-err').textContent = ''; $('s-go').disabled = true;
+    try { localStorage.setItem(LSF, code); } catch (e) {}
+    syncStart(code).then(function () { renderSync(); }).catch(function () {
+      try { localStorage.removeItem(LSF); } catch (e) {}
+      $('s-err').textContent = 'Não consegui conectar. Verifique a internet e tente de novo.'; renderSync();
+    }).then(function () { $('s-go').disabled = false; });
+  };
+  $('s-stop').onclick = function () {
+    syncStop(); try { localStorage.removeItem(LSF); } catch (e) {}
+    $('s-state').textContent = ''; renderSync();
+  };
+
   // estado inicial: dados do navegador, depois troca para o banco se estiver disponível
   txs = lsLoad();
   $('note').textContent = '';
   render();
 
   $('note').textContent = 'Seus lançamentos ficam salvos neste aparelho.';
+  setSync('');
+  if (getFam()) syncStart(getFam()).catch(syncErr);
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function () {}); }
 })();
 </script>
