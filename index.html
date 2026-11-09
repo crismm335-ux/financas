@@ -344,7 +344,7 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 24</p>
+  <p class="note" style="opacity:.6">Versão 25</p>
 </div>
 <div id="v-fluxo" hidden>
   <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
@@ -596,6 +596,7 @@ function render(force){
   if(!S.loaded) v.innerHTML=`<div class="empty">${S.lento?'Ainda não foi possível carregar os dados. Continuo tentando…':'Carregando os dados do mês…'}</div>`;
   else if(!m) v.innerHTML=`<div class="list"><div class="empty">Nenhum mês cadastrado ainda.<br>Toque em <b>Novo mês</b> para começar: as despesas, a lista do mercado e a renda aparecem aqui.${S.meses[SEED_ID]?'':'<br><br><button type="button" class="primary" data-a="seed" id="fx-seed">Importar março de 2025 (do app anterior)</button>'}</div></div>`;
   else v.innerHTML=(S.db?'':'<div class="notice warn">Os dados salvos não estão acessíveis agora. O que você alterar aqui não será guardado.</div>')+({resumo:vResumo,despesas:vDespesas,mercado:vMercado,farmacia:vFarmacia,renda:vRenda}[S.tab])(m,calc(m,S.cur));
+  if(S.novo)v.innerHTML=painelNovo()+v.innerHTML;
   setStatus();
   if(fid){const el=document.getElementById(fid);if(el&&el!==document.activeElement){el.focus();if(pos!=null&&el.setSelectionRange)try{el.setSelectionRange(pos,pos)}catch(e){}}}
 }
@@ -694,6 +695,8 @@ $('#fx-view').addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b){if(S.sure){S.sure=null;render()}return}
   const a=b.dataset.a,id=b.dataset.id;let keep=null;
   if(a==='add')return add(b.dataset.tipo);
+  if(a==='cancelar'){S.novo=false;return render(true)}
+  if(a==='criar'){return criar($('#fx-novomes').value)}
   if(a==='seed'){const s=clone(SEED);S.meses[SEED_ID]=s;delete TOMB[SEED_ID];saveTomb();S.cur=SEED_ID;store.set('fx-mes',SEED_ID);touch(SEED_ID);S.tab='resumo';return render(true)}
   if(a==='tab'){S.tab=b.dataset.tab;store.set('fx-tab',S.tab)}
   if(a==='filtro')S.filtro=b.dataset.k;
@@ -706,16 +709,23 @@ $('#fx-view').addEventListener('click',e=>{
 });
 $('#fx-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){S.tab=b.dataset.tab;S.sure=null;store.set('fx-tab',S.tab);render(true);window.scrollTo(0,0)}});
 $('#fx-mes').addEventListener('change',e=>{S.cur=e.target.value;S.sure=null;store.set('fx-mes',S.cur);render(true)});
-$('#fx-novo').addEventListener('click',()=>{
-  const ids=Object.keys(S.meses).sort(),last=ids[ids.length-1];let id;
-  if(last){let [y,mo]=last.split('-').map(Number);mo++;if(mo>12){mo=1;y++}id=y+'-'+String(mo).padStart(2,'0')}
-  else{const d=new Date();id=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function criar(id){
+  if(!id||S.meses[id])return;
+  const ids=Object.keys(S.meses).sort(),last=ids[ids.length-1];
   const base=last?clone(S.meses[last]):{renda:{vendas:0,comissao:5,inss:13.8,desconto:0,cris:0},somaFarmacia:false,itens:{d0:{tipo:'despesa',nome:'Mercado',auto:'mercado',valor:0,pago:false,ordem:0},d1:{tipo:'despesa',nome:'Farmácia',auto:'farmacia',valor:0,pago:false,ordem:1}}};
   for(const k in base.itens){if(base.itens[k].apagado)delete base.itens[k];else base.itens[k].pago=false}
   if(base.renda)base.renda.desconto=0;
-  delete TOMB[id];saveTomb();S.meses[id]=base;S.cur=id;store.set('fx-mes',id);S.tab='resumo';render(true);
+  delete TOMB[id];saveTomb();S.meses[id]=base;S.cur=id;store.set('fx-mes',id);S.tab='resumo';S.novo=false;render(true);
   touch(id);
-});
+}
+function painelNovo(){
+  const d=new Date(),opts=[];
+  for(let i=-12;i<=3;i++){const x=new Date(d.getFullYear(),d.getMonth()+i,1),id=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');if(!S.meses[id])opts.push(id)}
+  const prev=new Date(d.getFullYear(),d.getMonth()-1,1),pid=prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0');
+  const def=opts.includes(pid)?pid:opts[opts.length-1];
+  return `<div class="card" style="margin-bottom:12px"><h3>Criar mês</h3><div class="tools"><select id="fx-novomes" aria-label="Mês">${opts.map(i=>`<option value="${i}"${i===def?' selected':''}>${rotulo(i)}</option>`).join('')}</select><button type="button" class="primary" data-a="criar" id="fx-criar">Criar</button><button type="button" data-a="cancelar" id="fx-cancelar">Cancelar</button></div><p class="hint" style="margin-top:8px">Copia as despesas e a lista do mês mais recente, com tudo desmarcado.</p></div>`;
+}
+$('#fx-novo').addEventListener('click',()=>{S.novo=!S.novo;render(true)});
 
 
 /* ---------- ligação com o app ---------- */
