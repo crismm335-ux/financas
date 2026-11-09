@@ -106,6 +106,86 @@ h2 { font-family: var(--font-display); font-size: 15px; font-weight: 600; margin
 .tipd summary { padding: 14px 0; font-weight: 700; font-size: 15px; cursor: pointer; }
 .tipd ul { margin: 0; padding: 0 0 12px 18px; font-size: 14px; line-height: 1.45; }
 .tipd li { margin-bottom: 8px; } .tipd li.fine { color: var(--muted); font-size: 12px; list-style: none; margin-left: -18px; }
+
+#v-fluxo{--display:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--ink:var(--fg);--sunk:var(--surface-2);--pop:var(--accent);--accent-soft:var(--surface-2);--accent-ink:var(--on-accent);--pos:var(--income);--neg:var(--expense);color:var(--fg)}
+#v-fluxo *{box-sizing:border-box}
+#v-fluxo .fx-head{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:4px 0 6px}
+#v-fluxo select,#v-fluxo input[type=text],#v-fluxo button{font:inherit;color:inherit}
+#v-fluxo select,#v-fluxo input[type=text]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+#v-fluxo button{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
+#v-fluxo button.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
+#v-fluxo button.ghost{border-color:transparent;background:transparent;color:var(--muted);padding:6px 8px}
+#v-fluxo button.danger{color:var(--expense);border-color:var(--expense)}
+#v-fluxo nav{border-bottom:1px solid var(--line);margin:0 0 10px}
+#v-fluxo nav .in{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+#v-fluxo nav button{border:0;background:none;border-radius:0;padding:12px 12px 10px;color:var(--muted);font-weight:600;white-space:nowrap;border-bottom:3px solid transparent}
+#v-fluxo nav button[aria-selected=true]{color:var(--fg);border-bottom-color:var(--accent)}
+#v-fluxo .fx-status{font-size:12px;color:var(--muted);min-height:16px}
+#v-fluxo .notice{background:var(--surface-2);border-radius:10px;padding:12px 14px}
+#v-fluxo .hero{background:var(--accent);color:var(--on-accent);border-radius:14px;padding:20px}
+#v-fluxo .hero .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+#v-fluxo .hero .big{font:700 clamp(34px,10vw,48px)/1.05 var(--display);margin:4px 0}
+#v-fluxo .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#v-fluxo .stats div{background:var(--surface);padding:12px 9px;min-width:0}
+#v-fluxo .stats .lbl,#v-fluxo .sec-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#v-fluxo .stats b{display:block;font:600 clamp(12.5px,3.3vw,17px)/1.2 var(--display);margin-top:2px;white-space:nowrap}
+#v-fluxo .bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+#v-fluxo .bar i{display:block;height:100%;background:var(--accent)}
+#v-fluxo .split{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+#v-fluxo .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+#v-fluxo .card h3{font:600 17px var(--display);margin:0 0 8px}
+#v-fluxo .kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px dashed var(--line)}
+#v-fluxo .kv:first-of-type{border-top:0}
+#v-fluxo .kv span{color:var(--muted)}
+#v-fluxo .kv.total{border-top:1px solid var(--fg);font-weight:600;margin-top:4px;padding-top:8px}
+#v-fluxo .kv.total span{color:var(--fg)}
+#v-fluxo .neg{color:var(--expense)}
+#v-fluxo .pos{color:var(--income)}
+#v-fluxo .rank{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+#v-fluxo .rank .bar{grid-column:1/-1;margin-bottom:8px}
+#v-fluxo h2{font:600 18px var(--display);margin:0}
+#v-fluxo .totalbar{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;justify-content:space-between}
+#v-fluxo .totalbar .t{font:700 26px/1.1 var(--display)}
+#v-fluxo .totalbar .sub{color:var(--muted);font-size:13px}
+#v-fluxo .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#v-fluxo .tools input[type=text]{flex:1 1 160px}
+#v-fluxo .chips{display:flex;gap:6px;flex-wrap:wrap}
+#v-fluxo .chips button{border-radius:999px;padding:6px 12px;font-size:13px}
+#v-fluxo .chips button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#v-fluxo .list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#v-fluxo .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:8px 10px;border-top:1px solid var(--line)}
+#v-fluxo .row:first-child{border-top:0}
+#v-fluxo .row.done .nome{color:var(--muted);text-decoration:line-through}
+#v-fluxo .row input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex:none;margin:0}
+#v-fluxo .row input[type=text]{border-color:transparent;background:transparent;padding:6px}
+#v-fluxo .row input[type=text]:hover,#v-fluxo .row input[type=text]:focus{border-color:var(--line);background:var(--bg)}
+#v-fluxo .row .nome{flex:1 1 140px;min-width:0}
+#v-fluxo .row .money{width:96px;text-align:right;flex:none}
+#v-fluxo .row .fixed{flex:1 1 140px;min-width:0;padding:6px}
+#v-fluxo .row .fixed small{display:block;color:var(--muted)}
+#v-fluxo .row .val{width:96px;text-align:right;font-weight:600;padding-right:6px;flex:none}
+#v-fluxo .row .calc{display:flex;align-items:center;gap:4px;margin-left:auto;color:var(--muted)}
+#v-fluxo .row .calc .q{width:54px;text-align:center}
+#v-fluxo .row .calc .p{width:74px;text-align:right}
+#v-fluxo .row .calc .sub{width:84px;text-align:right;color:var(--fg);font-weight:600}
+#v-fluxo .step{width:30px;height:30px;padding:0;border-radius:50%;line-height:1}
+#v-fluxo .del{width:30px;height:30px;padding:0;border:0;background:none;color:var(--muted);border-radius:6px;flex:none}
+#v-fluxo .del.sure{width:auto;padding:0 8px;color:var(--expense);font-weight:600}
+#v-fluxo .empty{padding:22px 14px;color:var(--muted);text-align:center}
+#v-fluxo .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+#v-fluxo .form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+#v-fluxo .form input{font-size:16px;color:var(--fg)}
+#v-fluxo .switch{display:flex;gap:10px;align-items:center}
+#v-fluxo .switch input{width:20px;height:20px;accent-color:var(--accent)}
+#v-fluxo .hint{color:var(--muted);font-size:13px;margin:0 0 10px}
+#v-fluxo .scroll{overflow-x:auto;margin-bottom:10px}
+#v-fluxo table{border-collapse:collapse;width:100%;min-width:520px}
+#v-fluxo th,#v-fluxo td{text-align:right;padding:7px 8px;border-top:1px solid var(--line);white-space:nowrap}
+#v-fluxo th:first-child,#v-fluxo td:first-child{text-align:left}
+#v-fluxo th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;border-top:0}
+#v-fluxo tr.cur td{background:var(--surface-2);font-weight:600}
+.modebar { margin: 0 0 12px; }
+.modebar.tog { width: 100%; }
 .backdrop { position: fixed; inset: 0; z-index: 8; background: rgba(0,0,0,.45); }
 .sheet {
   position: fixed; z-index: 9; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 22px 22px 0 0;
@@ -211,6 +291,8 @@ input[type=text], input[type=date] {
 
 
 <div class="wrap">
+  <div class="tog modebar" role="group" aria-label="Tela"><button type="button" id="mo-lanc" aria-pressed="true">Lançamentos</button><button type="button" id="mo-fluxo" aria-pressed="false">Fluxo do mês</button></div>
+<div id="v-lanc">
   <header>
     <h1>Minhas Finanças</h1>
     <div class="month">
@@ -262,7 +344,20 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 23</p>
+  <p class="note" style="opacity:.6">Versão 24</p>
+</div>
+<div id="v-fluxo" hidden>
+  <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
+  <nav id="fx-tabs" role="tablist"><div class="in">
+    <button role="tab" data-tab="resumo">Resumo</button>
+    <button role="tab" data-tab="despesas">Despesas</button>
+    <button role="tab" data-tab="mercado">Mercado</button>
+    <button role="tab" data-tab="farmacia">Farmácia</button>
+    <button role="tab" data-tab="renda">Renda</button>
+  </div></nav>
+  <div class="fx-status" id="fx-status" role="status"></div>
+  <div id="fx-view"></div>
+</div>
 </div>
 
 <button class="fab" id="add" type="button">+ Novo lançamento</button>
@@ -428,6 +523,215 @@ input[type=text], input[type=date] {
   </form>
 </div>
 
+<script>
+(function(){
+const SEED_ID='2025-03',SEED={"itens":{"d000":{"auto":"mercado","nome":"Mercado","ordem":0,"pago":false,"tipo":"despesa","valor":0},"d001":{"nome":"Luz + Parcelamento","ordem":1,"pago":false,"tipo":"despesa","valor":580},"d002":{"nome":"Agua","ordem":2,"pago":false,"tipo":"despesa","valor":450},"d003":{"nome":"Combustivel","ordem":3,"pago":false,"tipo":"despesa","valor":300},"d004":{"auto":"farmacia","nome":"Farmacia","ordem":4,"pago":false,"tipo":"despesa","valor":0},"d005":{"nome":"netflix","ordem":5,"pago":false,"tipo":"despesa","valor":0},"d006":{"nome":"Investimento","ordem":6,"pago":false,"tipo":"despesa","valor":500},"d007":{"nome":"Cartão Sr Luiz","ordem":7,"pago":false,"tipo":"despesa","valor":250},"d008":{"nome":"Cartão Ana Tereza","ordem":8,"pago":false,"tipo":"despesa","valor":170},"d009":{"nome":"Roupa Luiz Miguel","ordem":9,"pago":false,"tipo":"despesa","valor":0},"d010":{"nome":"Renan/jake","ordem":10,"pago":false,"tipo":"despesa","valor":0},"d011":{"nome":"Ração Belinha/Areta","ordem":11,"pago":false,"tipo":"despesa","valor":50},"d012":{"nome":"Pagar Divida Sr Luis","ordem":12,"pago":false,"tipo":"despesa","valor":0},"d013":{"nome":"Pagar Divida Jeny","ordem":13,"pago":false,"tipo":"despesa","valor":0},"d014":{"nome":"Pagar Divida Amanda","ordem":14,"pago":false,"tipo":"despesa","valor":0},"d015":{"nome":"Pagar Divida Vitória","ordem":15,"pago":false,"tipo":"despesa","valor":0},"d016":{"nome":"Troca de óleo","ordem":16,"pago":false,"tipo":"despesa","valor":0},"d017":{"nome":"Escola","ordem":17,"pago":false,"tipo":"despesa","valor":0},"d018":{"nome":"oleo","ordem":18,"pago":false,"tipo":"despesa","valor":0},"d019":{"nome":"almoco","ordem":19,"pago":false,"tipo":"despesa","valor":0},"d020":{"nome":"complemento mercado","ordem":20,"pago":false,"tipo":"despesa","valor":0},"d021":{"nome":"Parcela ipva","ordem":21,"pago":false,"tipo":"despesa","valor":195},"d022":{"nome":"Parcela iptu","ordem":22,"pago":false,"tipo":"despesa","valor":0},"d023":{"nome":"material luiz","ordem":23,"pago":false,"tipo":"despesa","valor":0},"d024":{"nome":"rastreador","ordem":24,"pago":false,"tipo":"despesa","valor":0},"d025":{"nome":"Van","ordem":25,"pago":false,"tipo":"despesa","valor":180},"d026":{"nome":"gas","ordem":26,"pago":false,"tipo":"despesa","valor":0},"f000":{"nome":"Repelente","ordem":0,"pago":false,"tipo":"farmacia","valor":16},"f001":{"nome":"Pomada","ordem":1,"pago":false,"tipo":"farmacia","valor":25},"f002":{"nome":"Vick","ordem":2,"pago":false,"tipo":"farmacia","valor":36},"f003":{"nome":"Xarope","ordem":3,"pago":false,"tipo":"farmacia","valor":25},"f004":{"nome":"Berotec","ordem":4,"pago":false,"tipo":"farmacia","valor":25},"f005":{"nome":"cabelo luiz miguel","ordem":5,"pago":false,"tipo":"farmacia","valor":48},"f006":{"nome":"Loreal","ordem":6,"pago":false,"tipo":"farmacia","valor":0},"f007":{"nome":"Bandeide","ordem":7,"pago":false,"tipo":"farmacia","valor":0},"m000":{"nome":"Absorvente Mari Pacote","ordem":0,"pago":false,"preco":10.32,"qtd":1,"tipo":"mercado"},"m001":{"nome":"Açúcar saco de 2kg","ordem":1,"pago":false,"preco":7.49,"qtd":1,"tipo":"mercado"},"m002":{"nome":"Alcol","ordem":2,"pago":false,"preco":6,"qtd":1,"tipo":"mercado"},"m003":{"nome":"Alface 4","ordem":3,"pago":false,"preco":4,"qtd":1,"tipo":"mercado"},"m004":{"nome":"Alho","ordem":4,"pago":false,"preco":30,"qtd":1,"tipo":"mercado"},"m005":{"nome":"Amaciante Gaão de 3l","ordem":5,"pago":false,"preco":64.9,"qtd":1,"tipo":"mercado"},"m006":{"nome":"Amendoin Saco","ordem":6,"pago":false,"preco":14.9,"qtd":1,"tipo":"mercado"},"m007":{"nome":"Arroz Pacote de 5kg","ordem":7,"pago":false,"preco":27,"qtd":1,"tipo":"mercado"},"m008":{"nome":"Azeite 35","ordem":8,"pago":false,"preco":45,"qtd":1,"tipo":"mercado"},"m009":{"nome":"Bacon kg","ordem":9,"pago":false,"preco":39.9,"qtd":0.454,"tipo":"mercado"},"m010":{"nome":"Bandeide","ordem":10,"pago":false,"preco":15,"qtd":1,"tipo":"mercado"},"m011":{"nome":"Rodo","ordem":11,"pago":false,"preco":15,"qtd":0,"tipo":"mercado"},"m012":{"nome":"Banana Nanica kg","ordem":12,"pago":false,"preco":3,"qtd":1,"tipo":"mercado"},"m013":{"nome":"Banana Prata kg","ordem":13,"pago":false,"preco":4,"qtd":1,"tipo":"mercado"},"m014":{"nome":"Batata kg","ordem":14,"pago":false,"preco":4,"qtd":1,"tipo":"mercado"},"m015":{"nome":"Bolacha CK Pacote","ordem":15,"pago":false,"preco":6,"qtd":1,"tipo":"mercado"},"m016":{"nome":"Bolacha Maisena","ordem":16,"pago":false,"preco":4.19,"qtd":1,"tipo":"mercado"},"m017":{"nome":"Cabotia","ordem":17,"pago":false,"preco":18,"qtd":0,"tipo":"mercado"},"m018":{"nome":"Café Itamaraty","ordem":18,"pago":false,"preco":22,"qtd":1,"tipo":"mercado"},"m019":{"nome":"Carne bife","ordem":19,"pago":false,"preco":30,"qtd":3,"tipo":"mercado"},"m020":{"nome":"Carne moída","ordem":20,"pago":false,"preco":19,"qtd":3,"tipo":"mercado"},"m021":{"nome":"cebola kg","ordem":21,"pago":false,"preco":4,"qtd":1,"tipo":"mercado"},"m022":{"nome":"Cenoura","ordem":22,"pago":false,"preco":4,"qtd":1,"tipo":"mercado"},"m023":{"nome":"Cerveja un.","ordem":23,"pago":false,"preco":2.79,"qtd":12,"tipo":"mercado"},"m024":{"nome":"Coentro","ordem":24,"pago":false,"preco":6,"qtd":0,"tipo":"mercado"},"m025":{"nome":"Condicionador","ordem":25,"pago":false,"preco":27.99,"qtd":0,"tipo":"mercado"},"m026":{"nome":"Copo liquidificador","ordem":26,"pago":false,"preco":6,"qtd":0,"tipo":"mercado"},"m027":{"nome":"Creme de leite","ordem":27,"pago":false,"preco":2.59,"qtd":6,"tipo":"mercado"},"m028":{"nome":"Desinfetante Galão 5l","ordem":28,"pago":false,"preco":20,"qtd":2,"tipo":"mercado"},"m029":{"nome":"Desodorante Frasco 250ml","ordem":29,"pago":false,"preco":0,"qtd":1,"tipo":"mercado"},"m030":{"nome":"Desodorante Mari","ordem":30,"pago":false,"preco":30,"qtd":0,"tipo":"mercado"},"m031":{"nome":"Detergente","ordem":31,"pago":false,"preco":2.15,"qtd":4,"tipo":"mercado"},"m032":{"nome":"Doce de leite","ordem":32,"pago":false,"preco":8.49,"qtd":2,"tipo":"mercado"},"m033":{"nome":"Esponja saco com 4 un","ordem":33,"pago":false,"preco":5.85,"qtd":1,"tipo":"mercado"},"m034":{"nome":"Estrato de tomate pote","ordem":34,"pago":false,"preco":5.69,"qtd":2,"tipo":"mercado"},"m035":{"nome":"Farinha de trigo saco 1kg","ordem":35,"pago":false,"preco":5,"qtd":1,"tipo":"mercado"},"m036":{"nome":"Feijão","ordem":36,"pago":false,"preco":8,"qtd":1,"tipo":"mercado"},"m037":{"nome":"Figado kg","ordem":37,"pago":false,"preco":15,"qtd":0,"tipo":"mercado"},"m038":{"nome":"Filtro café 10","ordem":38,"pago":false,"preco":4,"qtd":1,"tipo":"mercado"},"m039":{"nome":"Fio dental","ordem":39,"pago":false,"preco":5,"qtd":0,"tipo":"mercado"},"m040":{"nome":"Flocao","ordem":40,"pago":false,"preco":3,"qtd":0,"tipo":"mercado"},"m041":{"nome":"Frango Cox Sbr Cox kg","ordem":41,"pago":false,"preco":13,"qtd":3,"tipo":"mercado"},"m042":{"nome":"Goiaba kg","ordem":42,"pago":false,"preco":10,"qtd":0.5,"tipo":"mercado"},"m043":{"nome":"Iogurte Luiz pack c/ 6","ordem":43,"pago":false,"preco":4.49,"qtd":6,"tipo":"mercado"},"m044":{"nome":"Iorgute Mari Pote","ordem":44,"pago":false,"preco":2.99,"qtd":6,"tipo":"mercado"},"m045":{"nome":"Laranja","ordem":45,"pago":false,"preco":4,"qtd":2,"tipo":"mercado"},"m046":{"nome":"Leite caixinha Un.","ordem":46,"pago":false,"preco":4.8,"qtd":5,"tipo":"mercado"},"m047":{"nome":"Leite condensado Un.","ordem":47,"pago":false,"preco":6,"qtd":3,"tipo":"mercado"},"m048":{"nome":"Leite em pó","ordem":48,"pago":false,"preco":35.9,"qtd":1,"tipo":"mercado"},"m049":{"nome":"Lendo humedecido","ordem":49,"pago":false,"preco":30,"qtd":0,"tipo":"mercado"},"m050":{"nome":"Linguiça calabresa kg","ordem":50,"pago":false,"preco":27,"qtd":1,"tipo":"mercado"},"m051":{"nome":"Mação saco","ordem":51,"pago":false,"preco":10.9,"qtd":1,"tipo":"mercado"},"m052":{"nome":"Macarrão Pacote 500g","ordem":52,"pago":false,"preco":5.5,"qtd":4,"tipo":"mercado"},"m053":{"nome":"Maionese Pote Heinz","ordem":53,"pago":false,"preco":14.99,"qtd":1,"tipo":"mercado"},"m054":{"nome":"Mamão kg","ordem":54,"pago":false,"preco":7.9,"qtd":2,"tipo":"mercado"},"m055":{"nome":"Mandioca Pacote","ordem":55,"pago":false,"preco":6.79,"qtd":1,"tipo":"mercado"},"m056":{"nome":"Manga kg","ordem":56,"pago":false,"preco":5.09,"qtd":0,"tipo":"mercado"},"m057":{"nome":"Margarina Pote 500g","ordem":57,"pago":false,"preco":7,"qtd":2,"tipo":"mercado"},"m058":{"nome":"Milho pote 170g","ordem":58,"pago":false,"preco":3.69,"qtd":6,"tipo":"mercado"},"m059":{"nome":"Nescau kg","ordem":59,"pago":false,"preco":22,"qtd":1,"tipo":"mercado"},"m060":{"nome":"Óleo frasco de 1l","ordem":60,"pago":false,"preco":6.89,"qtd":1,"tipo":"mercado"},"m061":{"nome":"Ovo bandeija c/ 30un.","ordem":61,"pago":false,"preco":20,"qtd":0,"tipo":"mercado"},"m062":{"nome":"Ovo codorna Pote","ordem":62,"pago":false,"preco":15,"qtd":1,"tipo":"mercado"},"m063":{"nome":"Pãozinho Luiz Miguel saco","ordem":63,"pago":false,"preco":6.99,"qtd":6,"tipo":"mercado"},"m064":{"nome":"Papel higiênico pacote c/ 4 rolos","ordem":64,"pago":false,"preco":5.64,"qtd":1,"tipo":"mercado"},"m065":{"nome":"Pasta de dente","ordem":65,"pago":false,"preco":9.59,"qtd":2,"tipo":"mercado"},"m066":{"nome":"Pasta luiz","ordem":66,"pago":false,"preco":4,"qtd":0,"tipo":"mercado"},"m067":{"nome":"Patê","ordem":67,"pago":false,"preco":4,"qtd":6,"tipo":"mercado"},"m068":{"nome":"Pilha m un.","ordem":68,"pago":false,"preco":13.49,"qtd":1,"tipo":"mercado"},"m069":{"nome":"Pilha P un.","ordem":69,"pago":false,"preco":9.49,"qtd":1,"tipo":"mercado"},"m070":{"nome":"Polpa 19","ordem":70,"pago":false,"preco":30,"qtd":0,"tipo":"mercado"},"m071":{"nome":"Porco kg","ordem":71,"pago":false,"preco":17.5,"qtd":1,"tipo":"mercado"},"m072":{"nome":"Presunto Pacote","ordem":72,"pago":false,"preco":5.29,"qtd":2,"tipo":"mercado"},"m073":{"nome":"Quiboa galão 5l","ordem":73,"pago":false,"preco":10,"qtd":2,"tipo":"mercado"},"m074":{"nome":"Repelente","ordem":74,"pago":false,"preco":20,"qtd":0,"tipo":"mercado"},"m075":{"nome":"Repolho kg","ordem":75,"pago":false,"preco":2.89,"qtd":0,"tipo":"mercado"},"m076":{"nome":"Sabão em pó saco de 4kg","ordem":76,"pago":false,"preco":25.9,"qtd":2,"tipo":"mercado"},"m077":{"nome":"Sabonete líquido","ordem":77,"pago":false,"preco":10,"qtd":0,"tipo":"mercado"},"m078":{"nome":"Sabonete Luís Miguel 20","ordem":78,"pago":false,"preco":4.29,"qtd":0,"tipo":"mercado"},"m079":{"nome":"Sabonete nosso","ordem":79,"pago":false,"preco":1.29,"qtd":6,"tipo":"mercado"},"m080":{"nome":"Saco verde15","ordem":80,"pago":false,"preco":15,"qtd":1,"tipo":"mercado"},"m081":{"nome":"Sacola","ordem":81,"pago":false,"preco":0.24,"qtd":4,"tipo":"mercado"},"m082":{"nome":"Sal5","ordem":82,"pago":false,"preco":3,"qtd":1,"tipo":"mercado"},"m083":{"nome":"Sazon","ordem":83,"pago":false,"preco":5.49,"qtd":2,"tipo":"mercado"},"m084":{"nome":"Shampoo Fred 20","ordem":84,"pago":false,"preco":30,"qtd":0,"tipo":"mercado"},"m085":{"nome":"Shampoo Luiz 20","ordem":85,"pago":false,"preco":14,"qtd":0,"tipo":"mercado"},"m086":{"nome":"Shampoo nosso un.","ordem":86,"pago":false,"preco":38.9,"qtd":0,"tipo":"mercado"},"m087":{"nome":"Shoyu","ordem":87,"pago":false,"preco":8,"qtd":0,"tipo":"mercado"},"m088":{"nome":"Talco","ordem":88,"pago":false,"preco":30,"qtd":0,"tipo":"mercado"},"m089":{"nome":"Tang un.","ordem":89,"pago":false,"preco":0.49,"qtd":20,"tipo":"mercado"},"m090":{"nome":"Tomate kg","ordem":90,"pago":false,"preco":6,"qtd":1,"tipo":"mercado"},"m091":{"nome":"Torcida","ordem":91,"pago":false,"preco":1.15,"qtd":4,"tipo":"mercado"},"m092":{"nome":"Uva 10","ordem":92,"pago":false,"preco":15,"qtd":1,"tipo":"mercado"},"m093":{"nome":"Veja","ordem":93,"pago":false,"preco":3.15,"qtd":1,"tipo":"mercado"},"m094":{"nome":"Veneno Un.","ordem":94,"pago":false,"preco":15,"qtd":0,"tipo":"mercado"},"m095":{"nome":"Vinagre","ordem":95,"pago":false,"preco":3.49,"qtd":1,"tipo":"mercado"},"m096":{"nome":"Cheiro de banheiro","ordem":96,"pago":false,"preco":3.49,"qtd":1,"tipo":"mercado"},"m097":{"nome":"Catchup","ordem":97,"pago":false,"preco":16.99,"qtd":1,"tipo":"mercado"},"m098":{"nome":"Miojo","ordem":98,"pago":false,"preco":3.49,"qtd":4,"tipo":"mercado"},"m099":{"nome":"Farofa","ordem":99,"pago":false,"preco":8,"qtd":1,"tipo":"mercado"},"m100":{"nome":"Bolacha mari","ordem":100,"pago":false,"preco":7,"qtd":1,"tipo":"mercado"},"m101":{"nome":"Ana maria","ordem":101,"pago":false,"preco":3.49,"qtd":0,"tipo":"mercado"},"m102":{"nome":"Bolacha rosquinha","ordem":102,"pago":false,"preco":6,"qtd":2,"tipo":"mercado"},"m103":{"nome":"Pão forma","ordem":103,"pago":false,"preco":7,"qtd":2,"tipo":"mercado"},"m104":{"nome":"Nescalzinho","ordem":104,"pago":false,"preco":2,"qtd":6,"tipo":"mercado"},"m105":{"nome":"Sol rits","ordem":105,"pago":false,"preco":2,"qtd":4,"tipo":"mercado"},"m106":{"nome":"Farofa","ordem":106,"pago":false,"preco":7,"qtd":2,"tipo":"mercado"},"m107":{"nome":"Chips","ordem":107,"pago":false,"preco":5,"qtd":1,"tipo":"mercado"},"m108":{"nome":"Pipoca","ordem":108,"pago":false,"preco":3,"qtd":1,"tipo":"mercado"},"m109":{"nome":"Bolacha rosquinha","ordem":109,"pago":false,"preco":6,"qtd":2,"tipo":"mercado"}},"renda":{"comissao":5,"cris":5000,"desconto":1000,"inss":13.8,"vendas":300000},"somaFarmacia":true};
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const $=s=>document.querySelector(s);
+const brl=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Math.abs(n||0)<0.005?0:n);
+const dec=n=>(Math.round((n||0)*1000)/1000).toLocaleString('pt-BR',{maximumFractionDigits:3});
+const money=n=>(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function parse(s){s=String(s).trim().replace(/[R$%\s]/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const v=parseFloat(s);return isFinite(v)?v:0}
+const rotulo=id=>{const [y,m]=id.split('-');return MESES[+m-1]+' '+y};
+const clone=o=>JSON.parse(JSON.stringify(o));
+function merge(a,b){for(const k in b){const v=b[k];if(v&&typeof v==='object'&&!Array.isArray(v)){if(!a[k]||typeof a[k]!=='object')a[k]={};merge(a[k],v)}else a[k]=v}return a}
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+let TOMB={};try{TOMB=JSON.parse(store.get('financas:fluxo-apagados')||'{}')||{}}catch(e){}
+let LOADED={};try{LOADED=JSON.parse(store.get('financas:fluxo')||'{}')||{}}catch(e){}
+const S={meses:LOADED,cur:store.get('fx-mes'),tab:store.get('fx-tab')||'resumo',loaded:true,db:true,busca:'',filtro:'todos',sure:null,lento:false,erro:''};
+if(!S.cur||!S.meses[S.cur])S.cur=Object.keys(S.meses).sort().pop()||null;
+let hookChange=()=>{},hookDel=()=>{};
+const saveAll=()=>store.set('financas:fluxo',JSON.stringify(S.meses));
+const saveTomb=()=>store.set('financas:fluxo-apagados',JSON.stringify(TOMB));
+function touch(id){if(!S.meses[id])return;S.meses[id].upd=Date.now();saveAll();hookChange(id)}
+const pend={},voando={},timers={};
+let wantRender=false;
+
+/* ---------- cálculo (as mesmas contas da planilha) ---------- */
+/* Tabelas oficiais de desconto do empregado. INSS: Portarias Interministeriais MPS/MF de 2025 e 2026. IRRF: tabela mensal (até abr/2025; a partir de mai/2025) e redutor da Lei 15.270/2025 a partir de jan/2026. */
+const INSS={2025:[[1518,.075],[2793.88,.09],[4190.83,.12],[8157.41,.14]],2026:[[1621,.075],[2902.84,.09],[4354.27,.12],[8475.55,.14]]};
+const IRA={simp:564.80,t:[[2259.20,0,0],[2826.65,.075,169.44],[3751.05,.15,381.44],[4664.68,.225,662.77],[Infinity,.275,896]]};
+const IRB={simp:607.20,t:[[2428.80,0,0],[2826.65,.075,182.16],[3751.05,.15,394.16],[4664.68,.225,675.49],[Infinity,.275,908.73]]};
+const DEP=189.59, c2=n=>Math.round(n*100)/100;
+const inssTab=mes=>INSS[+mes.slice(0,4)<=2025?2025:2026];
+function encargos(bruto,mes,dep){
+  let inss=0,prev=0;for(const [lim,a] of inssTab(mes)){if(bruto>prev)inss+=(Math.min(bruto,lim)-prev)*a;prev=lim}
+  inss=c2(inss);
+  const ir=mes<'2025-05'?IRA:IRB, base=Math.max(0,bruto-Math.max(inss+dep*DEP,ir.simp)), f=ir.t.find(x=>base<=x[0]);
+  let irrf=Math.max(0,base*f[1]-f[2]);
+  if(mes>='2026-01'){if(bruto<=5000)irrf=Math.max(0,irrf-312.89);else if(bruto<=7350)irrf=Math.max(0,irrf-(978.62-0.133145*bruto))}
+  return {inss,irrf:c2(irrf)};
+}
+function calc(m,mes){
+  const r=m.renda||{};
+  const its=Object.entries(m.itens||{}).filter(([,i])=>i&&!i.apagado).map(([id,i])=>({id,...i})).sort((a,b)=>(a.ordem||0)-(b.ordem||0));
+  const merc=its.filter(i=>i.tipo==='mercado'),farm=its.filter(i=>i.tipo==='farmacia'),desp=its.filter(i=>i.tipo==='despesa');
+  const sub=i=>(+i.qtd||0)*(+i.preco||0);
+  const mercado=merc.reduce((s,i)=>s+sub(i),0), farmacia=farm.reduce((s,i)=>s+(+i.valor||0),0);
+  const val=i=>i.auto==='mercado'?mercado:i.auto==='farmacia'?farmacia:(+i.valor||0);
+  let despesas=desp.reduce((s,i)=>s+val(i),0), pago=desp.reduce((s,i)=>s+(i.pago?val(i):0),0);
+  const comissao=(+r.vendas||0)*(+r.comissao||0)/100, bruto=comissao+(+r.fixo||0), auto=r.modo!=='manual';
+  const enc=auto?encargos(bruto,mes,+r.dependentes||0):{inss:bruto*(+r.inss||0)/100,irrf:0};
+  const inss=enc.inss, irrf=enc.irrf;
+  const mari=bruto-inss-irrf-(+r.desconto||0), cris=+r.cris||0, receita=mari+cris;
+  const sobra=receita-despesas, cada=sobra/2;
+  return {its,merc,farm,desp,sub,val,mercado,farmacia,despesas,pago,comissao,bruto,auto,inss,irrf,mari,cris,receita,sobra,cada,mariDeixa:mari-cada,crisTransf:cris-cada};
+}
+
+/* ---------- gravação local (e sincronização feita pelo app) ---------- */
+function setStatus(){const el=$('#fx-status');if(el){el.className='fx-status';el.textContent=S.msg||''}}
+function patch(obj){const id=S.cur;if(!S.meses[id])return;merge(S.meses[id],obj);touch(id)}
+/* ---------- telas ---------- */
+function render(force){
+  const ae=document.activeElement;
+  if(!force&&ae&&ae.matches&&ae.matches('#fx-view input[type=text]')&&ae.id!=='fx-busca'&&ae.value!==ae.defaultValue){wantRender=true;return}
+  wantRender=false;
+  const fid=ae&&ae.id, pos=ae&&ae.selectionStart;
+  const ids=Object.keys(S.meses).sort();
+  $('#fx-mes').innerHTML=ids.map(i=>`<option value="${i}"${i===S.cur?' selected':''}>${rotulo(i)}</option>`).join('')||'<option>Sem mês</option>';
+  document.querySelectorAll('#fx-tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));
+  const v=$('#fx-view'), m=S.meses[S.cur];
+  if(!S.loaded) v.innerHTML=`<div class="empty">${S.lento?'Ainda não foi possível carregar os dados. Continuo tentando…':'Carregando os dados do mês…'}</div>`;
+  else if(!m) v.innerHTML=`<div class="list"><div class="empty">Nenhum mês cadastrado ainda.<br>Toque em <b>Novo mês</b> para começar: as despesas, a lista do mercado e a renda aparecem aqui.${S.meses[SEED_ID]?'':'<br><br><button type="button" class="primary" data-a="seed" id="fx-seed">Importar março de 2025 (do app anterior)</button>'}</div></div>`;
+  else v.innerHTML=(S.db?'':'<div class="notice warn">Os dados salvos não estão acessíveis agora. O que você alterar aqui não será guardado.</div>')+({resumo:vResumo,despesas:vDespesas,mercado:vMercado,farmacia:vFarmacia,renda:vRenda}[S.tab])(m,calc(m,S.cur));
+  setStatus();
+  if(fid){const el=document.getElementById(fid);if(el&&el!==document.activeElement){el.focus();if(pos!=null&&el.setSelectionRange)try{el.setSelectionRange(pos,pos)}catch(e){}}}
+}
+const kv=(a,b,c='')=>`<div class="kv ${c}"><span>${a}</span><b>${b}</b></div>`;
+function delBtn(id){return `<button type="button" class="del${S.sure===id?' sure':''}" data-a="del" data-id="${id}" id="fx-x-${id}" aria-label="Apagar item">${S.sure===id?'Apagar?':'×'}</button>`}
+function addRow(tipo,ph){return `<div class="tools"><input type="text" id="fx-novo-${tipo}" placeholder="${ph}" aria-label="${ph}"><button type="button" class="primary" data-a="add" data-tipo="${tipo}">Adicionar</button></div>`}
+
+function vResumo(m,c){
+  const pct=c.despesas>0?Math.min(100,c.pago/c.despesas*100):0;
+  const top=c.desp.map(i=>({n:i.nome,v:c.val(i)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,6);
+  const mx=top[0]?top[0].v:1;
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="hero"><div class="lbl">${c.sobra<0?'Falta no mês':'Sobra do mês'} · ${rotulo(S.cur)}</div><div class="big">${brl(c.sobra)}</div><div>${brl(c.cada)} para cada um</div></div>
+  <div class="stats"><div><span class="lbl">Receita</span><b>${brl(c.receita)}</b></div><div><span class="lbl">Despesas</span><b>${brl(c.despesas)}</b></div><div><span class="lbl">A pagar</span><b>${brl(c.despesas-c.pago)}</b></div></div>
+  <div><div class="kv" style="border:0"><span>Contas pagas</span><b>${brl(c.pago)} de ${brl(c.despesas)}</b></div><div class="bar"><i style="width:${pct}%"></i></div></div>
+  <div class="split">
+    <div class="card"><h3>Mari</h3>${kv('Pagamento',brl(c.mari))}${kv('Fica com',brl(c.cada))}${kv('Deixar no Santander',brl(c.mariDeixa),'total')}</div>
+    <div class="card"><h3>Cris</h3>${kv('Pagamento',brl(c.cris))}${kv('Fica com',brl(c.cada))}${kv('Transferir para o Nubank',brl(c.crisTransf),'total')}</div>
+  </div>
+  <div class="card"><h3>Maiores despesas</h3>${top.length?`<div class="rank">${top.map(x=>`<span>${esc(x.n)}</span><b>${brl(x.v)}</b><div class="bar"><i style="width:${x.v/mx*100}%"></i></div>`).join('')}</div>`:'<div class="empty">Nenhuma despesa lançada.</div>'}</div>
+  </div>`;
+}
+function vDespesas(m,c){
+  const rows=c.desp.map(i=>i.auto
+   ?`<div class="row${i.pago?' done':''}"><input type="checkbox" id="fx-c-${i.id}" data-id="${i.id}" data-f="pago"${i.pago?' checked':''} aria-label="Pago"><div class="fixed"><span class="nome">${i.auto==='farmacia'?'Farmácia':'Mercado'}</span><small>soma da lista ${i.auto==='farmacia'?'da farmácia':'de compras'}</small></div><div class="val">${money(c.val(i))}</div><button type="button" class="ghost" data-a="tab" data-tab="${i.auto}" id="fx-go-${i.auto}">Abrir</button></div>`
+   :`<div class="row${i.pago?' done':''}"><input type="checkbox" id="fx-c-${i.id}" data-id="${i.id}" data-f="pago"${i.pago?' checked':''} aria-label="Pago"><input type="text" class="nome" id="fx-n-${i.id}" data-id="${i.id}" data-f="nome" value="${esc(i.nome)}" aria-label="Despesa"><input type="text" inputmode="decimal" class="money" id="fx-v-${i.id}" data-id="${i.id}" data-f="valor" value="${money(i.valor)}" aria-label="Valor"> ${delBtn(i.id)}</div>`).join('');
+  return `<div style="display:flex;flex-direction:column;gap:12px">
+  <div class="totalbar"><div><div class="sec-lbl">Total de despesas</div><div class="t">${brl(c.despesas)}</div></div><div class="sub">Pago ${brl(c.pago)} · marque a caixa quando pagar</div></div>
+  <div class="list">${rows||'<div class="empty">Nenhuma despesa. Adicione a primeira abaixo.</div>'}</div>
+  ${addRow('despesa','Nova despesa (ex.: Internet)')}</div>`;
+}
+function vMercado(m,c){
+  const q=S.busca.trim().toLowerCase();
+  const list=c.merc.filter(i=>(!q||String(i.nome).toLowerCase().includes(q))&&(S.filtro==='todos'||(S.filtro==='lista'&&i.qtd>0)||(S.filtro==='falta'&&i.qtd>0&&!i.pago)));
+  const naLista=c.merc.filter(i=>i.qtd>0), comprado=naLista.filter(i=>i.pago);
+  const chip=(k,t)=>`<button type="button" data-a="filtro" data-k="${k}" id="fx-f-${k}" aria-pressed="${S.filtro===k}">${t}</button>`;
+  const rows=list.map(i=>`<div class="row${i.pago?' done':''}"><input type="checkbox" id="fx-c-${i.id}" data-id="${i.id}" data-f="pago"${i.pago?' checked':''} aria-label="Comprado"><input type="text" class="nome" id="fx-n-${i.id}" data-id="${i.id}" data-f="nome" value="${esc(i.nome)}" aria-label="Produto">${delBtn(i.id)}
+   <div class="calc"><button type="button" class="step" data-a="menos" data-id="${i.id}" id="fx-m-${i.id}" aria-label="Diminuir">−</button><input type="text" inputmode="decimal" class="q" id="fx-q-${i.id}" data-id="${i.id}" data-f="qtd" value="${dec(i.qtd)}" aria-label="Quantidade"><button type="button" class="step" data-a="mais" data-id="${i.id}" id="fx-p-${i.id}" aria-label="Aumentar">+</button><span>×</span><input type="text" inputmode="decimal" class="p" id="fx-v-${i.id}" data-id="${i.id}" data-f="preco" value="${money(i.preco)}" aria-label="Preço unitário"><span class="sub">${money(c.sub(i))}</span></div></div>`).join('');
+  return `<div style="display:flex;flex-direction:column;gap:12px">
+  <div class="totalbar"><div><div class="sec-lbl">Total do mercado</div><div class="t">${brl(c.mercado)}</div></div><div class="sub">${comprado.length} de ${naLista.length} itens comprados · já no carrinho ${brl(comprado.reduce((s,i)=>s+c.sub(i),0))}</div></div>
+  <div class="tools"><input type="text" id="fx-busca" placeholder="Procurar produto" aria-label="Procurar produto" value="${esc(S.busca)}"><div class="chips">${chip('todos','Todos')}${chip('lista','Na lista')}${chip('falta','Falta comprar')}</div></div>
+  <div class="list">${rows||'<div class="empty">Nenhum produto aqui.</div>'}</div>
+  ${addRow('mercado','Novo produto (ex.: Queijo kg)')}</div>`;
+}
+function vFarmacia(m,c){
+  const rows=c.farm.map(i=>`<div class="row${i.pago?' done':''}"><input type="checkbox" id="fx-c-${i.id}" data-id="${i.id}" data-f="pago"${i.pago?' checked':''} aria-label="Comprado"><input type="text" class="nome" id="fx-n-${i.id}" data-id="${i.id}" data-f="nome" value="${esc(i.nome)}" aria-label="Item"><input type="text" inputmode="decimal" class="money" id="fx-v-${i.id}" data-id="${i.id}" data-f="valor" value="${money(i.valor)}" aria-label="Valor">${delBtn(i.id)}</div>`).join('');
+  return `<div style="display:flex;flex-direction:column;gap:12px">
+  <div class="totalbar"><div><div class="sec-lbl">Total da farmácia</div><div class="t">${brl(c.farmacia)}</div></div>
+  <div class="sub">Entra nas despesas do mês, na linha Farmácia</div></div>
+  <div class="list">${rows||'<div class="empty">Nenhum item de farmácia.</div>'}</div>
+  ${addRow('farmacia','Novo item (ex.: Vitamina)')}</div>`;
+}
+function vFaixas(c,r){
+  const mes=S.cur,dep=+r.dependentes||0,y=+mes.slice(0,4),tab=inssTab(mes);
+  const row=(b,cur)=>{const e=encargos(b,mes,dep),t=e.inss+e.irrf;return `<tr${cur?' class="cur"':''}><td>${cur?'Mari neste mês<br>':''}${money(b)}</td><td>${money(e.inss)}</td><td>${money(e.irrf)}</td><td>${money(t)}</td><td>${b?dec(Math.round(t/b*1000)/10):0}%</td><td>${money(b-t)}</td></tr>`};
+  const vals=[tab[0][0],2000,2500,3000,3500,4000,5000,6000,7350,tab[3][0],10000];
+  const irNome=mes<'2025-05'?'tabela até abril de 2025':mes<'2026-01'?'tabela de maio a dezembro de 2025':'tabela de 2026, com isenção até R$ 5.000';
+  return `<div class="card"><h3>Descontos por faixa de salário</h3>
+  <p class="hint">INSS de ${y<=2025?2025:2026}${y>2026?' (última tabela cadastrada)':''} e IRRF pela ${irNome}${dep?', com '+dep+' dependente(s)':''}. O IRRF usa o desconto simplificado ou as deduções legais, o que der menos imposto.</p>
+  <div class="scroll"><table><thead><tr><th>Salário bruto</th><th>INSS</th><th>IRRF</th><th>Total</th><th>% do bruto</th><th>Líquido</th></tr></thead><tbody>${row(c.bruto,true)}${vals.map(v=>row(v)).join('')}</tbody></table></div>
+  <p class="hint">Faixas do INSS: ${tab.map((t,n)=>`${n?'até':'até'} ${money(t[0])} → ${dec(t[1]*100)}%`).join(' · ')}. Cada alíquota vale só para a parte do salário dentro da faixa; acima de ${money(tab[3][0])} o INSS não aumenta. O FGTS (8%) é pago pela empresa e não sai do salário.</p></div>`;
+}
+function vRenda(m,c){
+  const r=m.renda||{};
+  const f=(k,l,v)=>`<label>${l}<input type="text" inputmode="decimal" id="fx-r-${k}" data-r="${k}" value="${v}"></label>`;
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="card"><h3>Mari · comissão de vendas</h3><div class="form">${f('vendas','Total de vendas (R$)',money(r.vendas))}${f('comissao','Comissão (%)',dec(r.comissao))}${f('fixo','Salário fixo (R$)',money(r.fixo))}${f('desconto','Vale pego no mês (R$)',money(r.desconto))}${c.auto?f('dependentes','Dependentes no IR',dec(r.dependentes)):f('inss','INSS/IRRF (%)',dec(r.inss))}</div>
+   <div class="chips" style="margin:10px 0 12px"><span class="sec-lbl" style="align-self:center">Descontos</span><button type="button" data-a="modo" data-v="auto" id="fx-md-a" aria-pressed="${c.auto}">Tabela oficial</button><button type="button" data-a="modo" data-v="manual" id="fx-md-m" aria-pressed="${!c.auto}">Alíquota manual</button>${(c.auto?[]:[13.8,17.5,21.09]).map((a,n)=>`<button type="button" data-a="aliq" data-v="${a}" id="fx-al-${n}" aria-pressed="${+r.inss===a}">${dec(a)}%</button>`).join('')}</div>
+   ${kv('Comissão',brl(c.comissao))}${kv('Salário bruto',brl(c.bruto))}${c.auto?kv('INSS','− '+brl(c.inss))+kv('IRRF','− '+brl(c.irrf)):kv('INSS/IRRF','− '+brl(c.inss))}${kv('Vale pego no mês','− '+brl(+r.desconto||0))}${kv('Pagamento Mari',brl(c.mari),'total')}</div>
+  <div class="card"><h3>Cris</h3><div class="form">${f('cris','Pagamento (R$)',money(r.cris))}</div></div>
+  <div class="card">${kv('Receita da família',brl(c.receita),'total')}</div>
+  ${vFaixas(c,r)}
+  <div><button type="button" class="danger${S.sure==='mes'?' sure':''}" data-a="delmes" id="fx-delmes">${S.sure==='mes'?'Confirmar: apagar '+rotulo(S.cur)+'?':'Apagar este mês'}</button></div></div>`;
+}
+
+/* ---------- ações ---------- */
+const item=id=>S.meses[S.cur]?.itens?.[id];
+$('#fx-view').addEventListener('change',e=>{
+  const t=e.target,d=t.dataset;
+  if(d.f&&d.id){const v=d.f==='pago'?t.checked:d.f==='nome'?t.value.trim()||'Sem nome':Math.max(0,parse(t.value));patch({itens:{[d.id]:{[d.f]:v}}});render(true)}
+  else if(d.r){patch({renda:{[d.r]:Math.max(0,parse(t.value))}});render(true)}
+  else if(d.m){patch({[d.m]:t.checked});render(true)}
+});
+$('#fx-view').addEventListener('input',e=>{if(e.target.id==='fx-busca'){S.busca=e.target.value;render(true)}});
+$('#fx-view').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('fx-novo-')){e.preventDefault();add(e.target.id.slice(8))}});
+$('#fx-view').addEventListener('blur',()=>{if(wantRender)setTimeout(()=>render(),0)},true);
+function add(tipo){
+  const inp=$('#fx-novo-'+tipo),nome=inp.value.trim();if(!nome){inp.focus();return}
+  const m=S.meses[S.cur],ordem=Math.max(0,...Object.values(m.itens||{}).map(i=>i.ordem||0))+1;
+  const id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  patch({itens:{[id]:tipo==='mercado'?{tipo,nome,qtd:1,preco:0,pago:false,ordem}:{tipo,nome,valor:0,pago:false,ordem}}});
+  S.busca='';if(tipo==='mercado'&&S.filtro==='falta')S.filtro='lista';render(true);
+  const el=document.getElementById('fx-v-'+id);if(el){el.focus();el.select()}
+}
+$('#fx-view').addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b){if(S.sure){S.sure=null;render()}return}
+  const a=b.dataset.a,id=b.dataset.id;let keep=null;
+  if(a==='add')return add(b.dataset.tipo);
+  if(a==='seed'){const s=clone(SEED);S.meses[SEED_ID]=s;delete TOMB[SEED_ID];saveTomb();S.cur=SEED_ID;store.set('fx-mes',SEED_ID);touch(SEED_ID);S.tab='resumo';return render(true)}
+  if(a==='tab'){S.tab=b.dataset.tab;store.set('fx-tab',S.tab)}
+  if(a==='filtro')S.filtro=b.dataset.k;
+  if(a==='mais'||a==='menos'){const q=+item(id).qtd||0;patch({itens:{[id]:{qtd:Math.max(0,Math.round((q+(a==='mais'?1:-1))*1000)/1000)}}})}
+  if(a==='modo')patch({renda:{modo:b.dataset.v}});
+  if(a==='aliq')patch({renda:{inss:+b.dataset.v}});
+  if(a==='del'){if(S.sure===id)patch({itens:{[id]:{apagado:true}}});else keep=id}
+  if(a==='delmes'){if(S.sure==='mes'){const mid=S.cur;delete S.meses[mid];TOMB[mid]=Date.now();saveTomb();saveAll();hookDel(mid,TOMB[mid]);S.cur=Object.keys(S.meses).sort().pop()||null;store.set('fx-mes',S.cur||'')}else keep='mes'}
+  S.sure=keep;render(true);
+});
+$('#fx-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){S.tab=b.dataset.tab;S.sure=null;store.set('fx-tab',S.tab);render(true);window.scrollTo(0,0)}});
+$('#fx-mes').addEventListener('change',e=>{S.cur=e.target.value;S.sure=null;store.set('fx-mes',S.cur);render(true)});
+$('#fx-novo').addEventListener('click',()=>{
+  const ids=Object.keys(S.meses).sort(),last=ids[ids.length-1];let id;
+  if(last){let [y,mo]=last.split('-').map(Number);mo++;if(mo>12){mo=1;y++}id=y+'-'+String(mo).padStart(2,'0')}
+  else{const d=new Date();id=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+  const base=last?clone(S.meses[last]):{renda:{vendas:0,comissao:5,inss:13.8,desconto:0,cris:0},somaFarmacia:false,itens:{d0:{tipo:'despesa',nome:'Mercado',auto:'mercado',valor:0,pago:false,ordem:0},d1:{tipo:'despesa',nome:'Farmácia',auto:'farmacia',valor:0,pago:false,ordem:1}}};
+  for(const k in base.itens){if(base.itens[k].apagado)delete base.itens[k];else base.itens[k].pago=false}
+  if(base.renda)base.renda.desconto=0;
+  delete TOMB[id];saveTomb();S.meses[id]=base;S.cur=id;store.set('fx-mes',id);S.tab='resumo';render(true);
+  touch(id);
+});
+
+
+/* ---------- ligação com o app ---------- */
+window.Fluxo={
+  render(){render(true)},
+  hook(c,d){hookChange=c;hookDel=d},
+  months:()=>S.meses, tombs:()=>TOMB,
+  remoteSet(id,m,upd){m.upd=upd;S.meses[id]=m;delete TOMB[id];saveAll();saveTomb();if(!S.cur||!S.meses[S.cur]){S.cur=id;store.set('fx-mes',id)}render()},
+  remoteDel(id,ts){delete S.meses[id];TOMB[id]=Math.max(TOMB[id]||0,ts);saveAll();saveTomb();if(S.cur===id){S.cur=Object.keys(S.meses).sort().pop()||null}render()},
+  setTomb(id,ts){TOMB[id]=ts;saveTomb()},
+  setMsg(t){S.msg=t;setStatus()}
+};
+document.addEventListener('DOMContentLoaded',()=>render(true));
+
+})();
+</script>
 <script>
 (function () {
   var CATS = {
@@ -1324,13 +1628,25 @@ input[type=text], input[type=date] {
     });
   };
 
+  // ---------- telas: lançamentos / fluxo do mês ----------
+  function setModo(m) {
+    var f = m === 'fluxo';
+    $('v-lanc').hidden = f; $('v-fluxo').hidden = !f; $('add').hidden = f;
+    $('mo-lanc').setAttribute('aria-pressed', !f); $('mo-fluxo').setAttribute('aria-pressed', f);
+    try { localStorage.setItem('financas:modo', m); } catch (e) {}
+    if (f && window.Fluxo) window.Fluxo.render();
+    window.scrollTo(0, 0);
+  }
+  $('mo-lanc').onclick = function () { setModo('lanc'); };
+  $('mo-fluxo').onclick = function () { setModo('fluxo'); };
+
   // ---------- sincronização com a família (Firestore) ----------
   var FBCFG = { apiKey: "AIzaSyDTNn6HETum6feeZc7-JgMm--E7WObBkyQ", authDomain: "financas-casa-19bd6.firebaseapp.com", projectId: "financas-casa-19bd6", storageBucket: "financas-casa-19bd6.firebasestorage.app", messagingSenderId: "261543645229", appId: "1:261543645229:web:c6b427eba2e21eb7f228a4" };
   var SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
   var LSF = 'financas:familia', LSD = 'financas:apagados', LSMU = 'financas:metas-upd';
   var apag = {}; try { apag = JSON.parse(localStorage.getItem(LSD) || '{}') || {}; } catch (e) {}
   var metasUpd = 0; try { metasUpd = +localStorage.getItem(LSMU) || 0; } catch (e) {}
-  var fsdb = null, famPath = null, unsubT = null, unsubM = null, firstT = true, persTried = false;
+  var fsdb = null, famPath = null, unsubT = null, unsubM = null, unsubX = null, firstT = true, firstX = true, persTried = false, fxTimers = {};
   function saveApag() { try { localStorage.setItem(LSD, JSON.stringify(apag)); } catch (e) {} }
   function getFam() { try { return localStorage.getItem(LSF) || ''; } catch (e) { return ''; } }
   function fmtCode(c) { return c.replace(/(.{5})(?=.)/g, '$1-'); }
@@ -1429,8 +1745,39 @@ input[type=text], input[type=date] {
       } catch (e) {}
     } else if (metasUpd > ru) pushMetas();
   }
+  function pushMes(id) {
+    if (!famPath || !fsdb || !window.Fluxo) return;
+    var m = window.Fluxo.months()[id]; if (!m) return;
+    try { fsdb.collection(famPath + '/meses').doc(id).set({ json: JSON.stringify(m), upd: m.upd || 1 }).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function pushMesDel(id, ts) {
+    if (!famPath || !fsdb) return;
+    try { fsdb.collection(famPath + '/meses').doc(id).set({ del: true, upd: ts }).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function onMesSnap(snap) {
+    var F = window.Fluxo; if (!F) return;
+    var fromCache = !!(snap.metadata && snap.metadata.fromCache), M = F.months(), T = F.tombs();
+    snap.docChanges().forEach(function (c) {
+      if (c.type === 'removed') return;
+      var d = c.doc; if (d.metadata && d.metadata.hasPendingWrites) return;
+      var r = d.data(), id = d.id, ru = +r.upd || 0, l = M[id], lu = l ? (l.upd || 0) : 0, du = T[id] || 0;
+      if (r.del) { if (l && ru >= lu) F.remoteDel(id, ru); else F.setTomb(id, Math.max(du, ru)); return; }
+      if (!l && du > ru) { pushMesDel(id, du); return; }
+      if (!l || ru > lu) { try { F.remoteSet(id, JSON.parse(r.json), ru); } catch (e) {} }
+      else if (lu > ru) pushMes(id);
+    });
+    if (firstX && !fromCache) {
+      firstX = false;
+      var seen = {}; snap.docs.forEach(function (d) { seen[d.id] = 1; });
+      Object.keys(M).forEach(function (id) { if (!seen[id]) { if (!M[id].upd) M[id].upd = 1; pushMes(id); } });
+      Object.keys(T).forEach(function (id) { if (!seen[id]) pushMesDel(id, T[id]); });
+    }
+  }
+  if (window.Fluxo) window.Fluxo.hook(function (id) {
+    clearTimeout(fxTimers[id]); fxTimers[id] = setTimeout(function () { pushMes(id); }, 500);
+  }, function (id, ts) { pushMesDel(id, ts); });
   function syncStop() {
-    if (unsubT) { unsubT(); unsubT = null; } if (unsubM) { unsubM(); unsubM = null; }
+    if (unsubT) { unsubT(); unsubT = null; } if (unsubM) { unsubM(); unsubM = null; } if (unsubX) { unsubX(); unsubX = null; }
     famPath = null;
   }
   function syncStart(code) {
@@ -1442,6 +1789,7 @@ input[type=text], input[type=date] {
       famPath = 'familias/' + h; firstT = true;
       unsubT = fsdb.collection(famPath + '/txs').onSnapshot(onTxSnap, syncErr);
       unsubM = fsdb.doc(famPath + '/config/metas').onSnapshot(onMetaSnap, syncErr);
+      firstX = true; unsubX = fsdb.collection(famPath + '/meses').onSnapshot(onMesSnap, syncErr);
     });
   }
   function normCode(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -1483,6 +1831,7 @@ input[type=text], input[type=date] {
 
   $('note').textContent = 'Seus lançamentos ficam salvos neste aparelho.';
   setSync('');
+  try { if (localStorage.getItem('financas:modo') === 'fluxo') setModo('fluxo'); } catch (e) {}
   if (getFam()) syncStart(getFam()).catch(syncErr);
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function () {}); }
 })();
