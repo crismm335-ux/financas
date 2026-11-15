@@ -184,6 +184,10 @@ h2 { font-family: var(--font-display); font-size: 15px; font-weight: 600; margin
 #v-fluxo th:first-child,#v-fluxo td:first-child{text-align:left}
 #v-fluxo th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;border-top:0}
 #v-fluxo tr.cur td{background:var(--surface-2);font-weight:600}
+#v-fluxo input[type=date]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0;font:inherit;font-size:16px;color:inherit}
+#v-fluxo .form select{font-size:16px;width:100%}
+#v-fluxo .form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+#v-fluxo .row input[type=date]{width:136px;flex:none;padding:6px;font-size:14px}
 .modebar { margin: 0 0 12px; }
 .modebar.tog { width: 100%; }
 .backdrop { position: fixed; inset: 0; z-index: 8; background: rgba(0,0,0,.45); }
@@ -344,7 +348,7 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 25</p>
+  <p class="note" style="opacity:.6">Versão 29</p>
 </div>
 <div id="v-fluxo" hidden>
   <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
@@ -353,6 +357,7 @@ input[type=text], input[type=date] {
     <button role="tab" data-tab="despesas">Despesas</button>
     <button role="tab" data-tab="mercado">Mercado</button>
     <button role="tab" data-tab="farmacia">Farmácia</button>
+    <button role="tab" data-tab="vendas">Vendas</button>
     <button role="tab" data-tab="renda">Renda</button>
   </div></nav>
   <div class="fx-status" id="fx-status" role="status"></div>
@@ -469,6 +474,19 @@ input[type=text], input[type=date] {
       <p class="hint" style="margin:0">Código desta família (digite igual no outro celular):</p>
       <p id="s-code" class="num" style="font-size:20px;font-weight:700;letter-spacing:.5px;word-break:break-all;margin:6px 0 10px"></p>
       <p class="hint" id="s-state" style="margin:0 0 10px"></p>
+      <details class="tipd" style="margin:0 0 10px"><summary>💳 Lançar sozinho ao pagar por aproximação</summary>
+        <div style="padding:0 0 12px;font-size:14px;line-height:1.45">
+          <p style="margin:0 0 8px">O app não consegue ler o cartão. Mas o iPhone avisa os Atalhos quando você paga com o Apple Pay, e um Atalho pode mandar o gasto para cá. Funciona só com cartões adicionados à Carteira (Apple Pay) e iOS 17 ou mais novo.</p>
+          <p style="margin:0 0 4px"><b>1.</b> Toque nos dois botões abaixo para copiar. Cole cada um no passo indicado.</p>
+          <div style="display:grid;gap:8px;margin:6px 0 10px"><button type="button" class="btn" id="s-cp-url">Copiar endereço</button><button type="button" class="btn" id="s-cp-tpl">Copiar modelo do texto</button></div>
+          <p style="margin:0 0 4px"><b>2.</b> Abra o app <b>Atalhos</b> → aba <b>Automação</b> → <b>+</b> → <b>Transação</b>. Escolha seu cartão, marque <b>Executar imediatamente</b> e toque em <b>Próximo</b>.</p>
+          <p style="margin:0 0 4px"><b>3.</b> Adicione a ação <b>Formatar data</b> (Data atual, formato personalizado <code>yyyy-MM-dd</code>).</p>
+          <p style="margin:0 0 4px"><b>4.</b> Adicione a ação <b>Texto</b> e cole o modelo. Troque <code>COMERCIANTE</code> pela variável <b>Comerciante</b>, <code>VALOR</code> pela variável <b>Valor</b> e <code>DATA</code> pela <b>Data formatada</b> (toque na palavra e escolha a variável).</p>
+          <p style="margin:0 0 4px"><b>5.</b> Adicione <b>Obter conteúdo do URL</b>. Cole o endereço, Método <b>POST</b>, cabeçalho <code>Content-Type</code> = <code>application/json</code>, Corpo da solicitação <b>Arquivo</b> = o Texto do passo 4.</p>
+          <p style="margin:0 0 4px"><b>6.</b> Toque em <b>OK</b>. Na próxima compra, o gasto aparece aqui sozinho, com a categoria que você já usou para o mesmo lugar (ou "Outros").</p>
+          <p class="hint" style="margin:8px 0 0">Cuidados: o endereço copiado é como uma chave da sua família, não envie para ninguém. O iOS às vezes não dispara a automação, e nem todo banco manda o nome do comerciante. Se faltar algum, é só lançar na mão.</p>
+        </div>
+      </details>
       <button type="button" class="btn" id="s-stop">Desligar neste aparelho</button>
       <p class="hint">Ao desligar, os dados continuam salvos aqui, mas deixam de acompanhar o outro celular.</p>
     </div>
@@ -546,6 +564,39 @@ let hookChange=()=>{},hookDel=()=>{};
 const saveAll=()=>store.set('financas:fluxo',JSON.stringify(S.meses));
 const saveTomb=()=>store.set('financas:fluxo-apagados',JSON.stringify(TOMB));
 function touch(id){if(!S.meses[id])return;S.meses[id].upd=Date.now();saveAll();hookChange(id)}
+
+/* ---------- vendas (comissão pelo valor líquido, parcela a parcela) ---------- */
+let VT={};try{VT=JSON.parse(store.get('financas:vendas-apagados')||'{}')||{}}catch(e){}
+let VL={};try{VL=JSON.parse(store.get('financas:vendas')||'{}')||{}}catch(e){}
+S.vendas=VL;
+let hookVC=()=>{},hookVD=()=>{};
+const saveV=()=>store.set('financas:vendas',JSON.stringify(S.vendas));
+const saveVT=()=>store.set('financas:vendas-apagados',JSON.stringify(VT));
+function touchV(id){if(!S.vendas[id])return;S.vendas[id].upd=Date.now();saveV();hookVC(id)}
+const CFG0=()=>({id:'_cfg',pct:5,deb:0,bol:0,cred:{}});
+const cfg=()=>S.vendas._cfg||CFG0();
+const taxaPadrao=(forma,n)=>{const c=cfg();return forma==='debito'?(+c.deb||0):forma==='credito'?(+(c.cred&&c.cred[n])||0):forma==='boleto'?(+c.bol||0):0};
+const pad2=n=>String(n).padStart(2,'0');
+const hojeStr=()=>{const d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())};
+function addM(ds,n){const [y,m,d]=ds.split('-').map(Number);const t=new Date(y,m-1+n,1);const last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();return t.getFullYear()+'-'+pad2(t.getMonth()+1)+'-'+pad2(Math.min(d,last))}
+const fmtD=ds=>ds?ds.split('-').reverse().join('/'):'';
+const FORMAS={dinheiro:'Dinheiro',pix:'PIX / transferência',debito:'Débito',credito:'Crédito',boleto:'Boleto / carnê'};
+const isPar=f=>f==='credito'||f==='boleto';
+function plano(v){
+  const par=isPar(v.forma),n=par?Math.max(1,Math.min(12,+v.n||1)):1;
+  const tot=Math.round((+v.valor||0)*100),base=Math.floor(tot/n),out=[];
+  for(let i=0;i<n;i++){const cents=i===n-1?tot-base*(n-1):base;out.push({d:par?addM(v.data,i+1):v.data,v:cents/100,rec:false})}
+  return out;
+}
+const liqP=(s,p)=>p.v*(1-(+s.taxa||0)/100), comP=(s,p)=>liqP(s,p)*(+s.pct||0)/100;
+function vendasMes(mes){
+  const L=[];
+  for(const id in S.vendas){if(id==='_cfg')continue;const s=S.vendas[id];(s.parc||[]).forEach((p,k)=>{if((p.d||'').slice(0,7)===mes)L.push({s,k,p,liq:liqP(s,p),com:comP(s,p)})})}
+  L.sort((a,b)=>a.p.d<b.p.d?-1:a.p.d>b.p.d?1:0);
+  const tot=x=>x.reduce((t,i)=>t+i.com,0);
+  return {L,com:tot(L),caiu:tot(L.filter(i=>i.p.rec)),falta:tot(L.filter(i=>!i.p.rec)),liq:L.reduce((t,i)=>t+i.liq,0)};
+}
+S.nv={data:hojeStr(),cli:'',valor:'',forma:'credito',n:1,taxa:null,pct:null};
 const pend={},voando={},timers={};
 let wantRender=false;
 
@@ -572,12 +623,12 @@ function calc(m,mes){
   const mercado=merc.reduce((s,i)=>s+sub(i),0), farmacia=farm.reduce((s,i)=>s+(+i.valor||0),0);
   const val=i=>i.auto==='mercado'?mercado:i.auto==='farmacia'?farmacia:(+i.valor||0);
   let despesas=desp.reduce((s,i)=>s+val(i),0), pago=desp.reduce((s,i)=>s+(i.pago?val(i):0),0);
-  const comissao=(+r.vendas||0)*(+r.comissao||0)/100, bruto=comissao+(+r.fixo||0), auto=r.modo!=='manual';
+  const vm=r.fonte==='vendas'?vendasMes(mes):null, comissao=vm?vm.com:(+r.vendas||0)*(+r.comissao||0)/100, piso=r.piso==null?1900:(+r.piso||0), bruto=Math.max(comissao,piso), noPiso=comissao<piso, auto=r.modo!=='manual';
   const enc=auto?encargos(bruto,mes,+r.dependentes||0):{inss:bruto*(+r.inss||0)/100,irrf:0};
   const inss=enc.inss, irrf=enc.irrf;
   const mari=bruto-inss-irrf-(+r.desconto||0), cris=+r.cris||0, receita=mari+cris;
   const sobra=receita-despesas, cada=sobra/2;
-  return {its,merc,farm,desp,sub,val,mercado,farmacia,despesas,pago,comissao,bruto,auto,inss,irrf,mari,cris,receita,sobra,cada,mariDeixa:mari-cada,crisTransf:cris-cada};
+  return {its,merc,farm,desp,sub,val,mercado,farmacia,despesas,pago,comissao,vm,piso,noPiso,bruto,auto,inss,irrf,mari,cris,receita,sobra,cada,mariDeixa:mari-cada,crisTransf:cris-cada};
 }
 
 /* ---------- gravação local (e sincronização feita pelo app) ---------- */
@@ -595,7 +646,7 @@ function render(force){
   const v=$('#fx-view'), m=S.meses[S.cur];
   if(!S.loaded) v.innerHTML=`<div class="empty">${S.lento?'Ainda não foi possível carregar os dados. Continuo tentando…':'Carregando os dados do mês…'}</div>`;
   else if(!m) v.innerHTML=`<div class="list"><div class="empty">Nenhum mês cadastrado ainda.<br>Toque em <b>Novo mês</b> para começar: as despesas, a lista do mercado e a renda aparecem aqui.${S.meses[SEED_ID]?'':'<br><br><button type="button" class="primary" data-a="seed" id="fx-seed">Importar março de 2025 (do app anterior)</button>'}</div></div>`;
-  else v.innerHTML=(S.db?'':'<div class="notice warn">Os dados salvos não estão acessíveis agora. O que você alterar aqui não será guardado.</div>')+({resumo:vResumo,despesas:vDespesas,mercado:vMercado,farmacia:vFarmacia,renda:vRenda}[S.tab])(m,calc(m,S.cur));
+  else v.innerHTML=(S.db?'':'<div class="notice warn">Os dados salvos não estão acessíveis agora. O que você alterar aqui não será guardado.</div>')+({resumo:vResumo,despesas:vDespesas,mercado:vMercado,farmacia:vFarmacia,vendas:vVendas,renda:vRenda}[S.tab])(m,calc(m,S.cur));
   if(S.novo)v.innerHTML=painelNovo()+v.innerHTML;
   setStatus();
   if(fid){const el=document.getElementById(fid);if(el&&el!==document.activeElement){el.focus();if(pos!=null&&el.setSelectionRange)try{el.setSelectionRange(pos,pos)}catch(e){}}}
@@ -619,6 +670,75 @@ function vResumo(m,c){
   <div class="card"><h3>Maiores despesas</h3>${top.length?`<div class="rank">${top.map(x=>`<span>${esc(x.n)}</span><b>${brl(x.v)}</b><div class="bar"><i style="width:${x.v/mx*100}%"></i></div>`).join('')}</div>`:'<div class="empty">Nenhuma despesa lançada.</div>'}</div>
   </div>`;
 }
+/* ---------- aba Vendas ---------- */
+function nvEf(){const v=S.nv,par=isPar(v.forma),n=par?v.n:1;return {data:v.data,cli:v.cli,valor:parse(v.valor),forma:v.forma,n,taxa:v.taxa!=null?v.taxa:taxaPadrao(v.forma,n),pct:v.pct!=null?v.pct:(+cfg().pct||0)}}
+function prevHtml(){
+  const e=nvEf();if(!(e.valor>0))return '<div class="hint">Digite o valor para ver quando cada parcela cai e quanto vira de comissão.</div>';
+  const ps=plano(e),com=ps.reduce((t,p)=>t+comP(e,p),0);
+  return ps.map((p,k)=>kv(`${k+1}/${ps.length} · cai em ${fmtD(p.d)}`,`líquido ${brl(liqP(e,p))} → comissão ${brl(comP(e,p))}`)).join('')+(e.taxa>0?kv('Taxa descontada no total','− '+brl(e.valor*e.taxa/100)):'')+kv('Comissão total da venda',brl(com),'total');
+}
+function vVendas(m,c){
+  const vm=vendasMes(S.cur),cf=cfg(),n=S.nv,e=nvEf(),par=isPar(n.forma),hoje=hojeStr();
+  const sales=Object.values(S.vendas).filter(x=>x.id!=='_cfg').sort((a,b)=>a.data<b.data?1:a.data>b.data?-1:0);
+  const usa=(m.renda||{}).fonte==='vendas';
+  const venc=vm.L.filter(i=>!i.p.rec&&i.p.d<=hoje).length;
+  const lin=i=>`<div class="row${i.p.rec?' done':''}"><input type="checkbox" id="fx-pr-${i.s.id}-${i.k}" data-pf="rec" data-sv="${i.s.id}" data-k="${i.k}"${i.p.rec?' checked':''} aria-label="Parcela caiu"><div class="fixed"><span class="nome">${esc(i.s.cli||'Venda')}</span><small>${i.k+1}/${i.s.parc.length} · ${fmtD(i.p.d)} · líquido ${brl(i.liq)}</small></div><span class="val">${brl(i.com)}</span></div>`;
+  const cfgIn=(k,l,v)=>`<label>${l}<input type="text" inputmode="decimal" id="fx-vc-${k}" data-vc="${k}" value="${dec(v)}"></label>`;
+  const vendaCard=s=>{
+    const k=s.parc.filter(p=>p.rec).length,tot=s.parc.reduce((t,p)=>t+comP(s,p),0),aberto=S.vOpen===s.id;
+    return `<div class="card" style="padding:0;overflow:hidden"><div data-a="vopen" data-id="${s.id}" style="display:flex;justify-content:space-between;gap:10px;padding:12px 14px;cursor:pointer"><span style="min-width:0"><b>${esc(s.cli||'Venda')}</b><br><small class="hint">${fmtD(s.data)} · ${FORMAS[s.forma]||s.forma}${isPar(s.forma)?' '+s.parc.length+'x':''} · ${brl(s.valor)}</small></span><span style="text-align:right;flex:none"><b>${brl(tot)}</b><br><small class="hint">${k} de ${s.parc.length} caíram</small></span></div>${aberto?`<div style="padding:0 14px 12px;border-top:1px solid var(--line)"><p class="hint" style="margin:10px 0 4px">Taxa ${dec(s.taxa)}% · comissão ${dec(s.pct)}% sobre o líquido. Marque quando a parcela cair; mude a data se cair em outro dia.</p>${s.parc.map((p,i)=>`<div class="row${p.rec?' done':''}"><input type="checkbox" id="fx-pc-${s.id}-${i}" data-pf="rec" data-sv="${s.id}" data-k="${i}"${p.rec?' checked':''} aria-label="Parcela caiu"><div class="fixed"><span class="nome">${i+1}/${s.parc.length} · ${brl(p.v)}</span><small>líquido ${brl(liqP(s,p))} · comissão ${brl(comP(s,p))}</small></div><input type="date" id="fx-pd-${s.id}-${i}" data-pf="d" data-sv="${s.id}" data-k="${i}" value="${p.d}" aria-label="Data"></div>`).join('')}<div style="margin-top:10px"><button type="button" class="danger${S.sure===s.id?' sure':''}" data-a="vdel" data-id="${s.id}">${S.sure===s.id?'Confirmar: apagar esta venda?':'Apagar venda'}</button></div></div>`:''}</div>`;
+  };
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="stats"><div><span class="lbl">Cai em ${rotulo(S.cur).split(' ')[0].toLowerCase()}</span><b>${brl(vm.com)}</b></div><div><span class="lbl">Já caiu</span><b>${brl(vm.caiu)}</b></div><div><span class="lbl">Falta cair</span><b>${brl(vm.falta)}</b></div></div>
+  <p class="hint" style="margin:0">${usa?'A comissão deste mês na aba Renda já usa estas vendas.':'Para usar estas vendas como a comissão do mês, vá na aba Renda e escolha <b>Pelas vendas lançadas</b>.'}</p>
+  <div class="card"><h3>Parcelas que caem em ${rotulo(S.cur)}</h3>${vm.L.length?vm.L.map(lin).join(''):'<div class="empty">Nenhuma parcela cai neste mês.</div>'}${venc?`<div style="margin-top:10px"><button type="button" data-a="vvenc" id="fx-vvenc">Marcar as ${venc} já vencidas como recebidas</button></div>`:''}</div>
+  <div class="card"><h3>Nova venda</h3>${S.vok?`<div class="notice" style="margin-bottom:10px">${esc(S.vok)}</div>`:''}<div class="form">
+    <label>Data da venda<input type="date" id="fx-vd" data-vf="data" value="${n.data}"></label>
+    <label>Cliente ou descrição<input type="text" id="fx-vcli" data-vf="cli" value="${esc(n.cli)}" placeholder="Ex.: Cozinha da Maria"></label>
+    <label>Valor da venda (R$)<input type="text" inputmode="decimal" id="fx-vv" data-vf="valor" value="${esc(n.valor)}" placeholder="0,00"></label>
+    <label>Forma de pagamento<select id="fx-vfm" data-vf="forma">${Object.keys(FORMAS).map(k=>`<option value="${k}"${k===n.forma?' selected':''}>${FORMAS[k]}</option>`).join('')}</select></label>
+    ${par?`<label>Parcelas<select id="fx-vn" data-vf="n">${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option value="${i}"${i===+n.n?' selected':''}>${i}x</option>`).join('')}</select></label>`:''}
+    <label>Taxa descontada (%)<input type="text" inputmode="decimal" id="fx-vtx" data-vf="taxa" value="${dec(e.taxa)}"></label>
+    <label>Comissão (%)<input type="text" inputmode="decimal" id="fx-vpc" data-vf="pct" value="${dec(e.pct)}"></label>
+  </div>
+  <div id="fx-prev" style="margin-top:10px">${prevHtml()}</div>
+  <div style="margin-top:12px"><button type="button" class="primary" data-a="vsalvar" id="fx-vsalvar">Salvar venda</button></div></div>
+  <div><div class="sec-lbl" style="margin:0 0 8px">Todas as vendas (${sales.length})</div>${sales.length?`<div style="display:flex;flex-direction:column;gap:8px">${sales.map(vendaCard).join('')}</div>`:'<div class="list"><div class="empty">Nenhuma venda lançada ainda.</div></div>'}</div>
+  <div class="card"><h3>Taxas e comissão</h3><p class="hint">Coloque as taxas que a empresa desconta em cada tipo de venda. O app tira a taxa do valor, e sobre o que sobra calcula a comissão. Crédito e boleto caem uma parcela por mês, a primeira 30 dias depois da venda.</p>
+    <div class="form">${cfgIn('pct','Comissão padrão (%)',+cf.pct||0)}${cfgIn('deb','Taxa do débito (%)',+cf.deb||0)}${cfgIn('bol','Taxa do boleto / carnê (%)',+cf.bol||0)}</div>
+    <div class="sec-lbl" style="margin:14px 0 6px">Taxa do crédito, por número de parcelas (%)</div>
+    <div class="form" style="grid-template-columns:repeat(3,1fr)">${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>cfgIn('c'+i,i+'x',+(cf.cred&&cf.cred[i])||0)).join('')}</div></div>
+  </div>`;
+}
+function salvarVenda(){
+  const v=S.nv;v.data=$('#fx-vd').value||v.data;v.cli=$('#fx-vcli').value;v.valor=$('#fx-vv').value;
+  const e=nvEf();if(!(e.valor>0)){S.vok='Digite o valor da venda.';render(true);return}
+  const id='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const parc=plano(e);if(!isPar(e.forma)&&e.forma!=='debito')parc.forEach(p=>{p.rec=p.d<=hojeStr()});
+  S.vendas[id]={id,data:e.data,cli:(e.cli||'').trim()||'Venda',valor:e.valor,forma:e.forma,n:e.n,taxa:e.taxa,pct:e.pct,parc};
+  delete VT[id];saveVT();touchV(id);
+  const tot=parc.reduce((t,p)=>t+comP(e,p),0);
+  S.vok='Venda salva. Comissão total: '+brl(tot)+'.';S.vOpen=id;S.nv.cli='';S.nv.valor='';S.nv.taxa=null;S.nv.pct=null;render(true);
+}
+function setVf(k,val){
+  const v=S.nv;S.vok='';
+  if(k==='forma'){v.forma=val;v.n=1;v.taxa=null}
+  else if(k==='n'){v.n=+val||1;v.taxa=null}
+  else if(k==='taxa'||k==='pct'){v[k]=String(val).trim()===''?null:Math.max(0,parse(val))}
+  else v[k]=val;
+}
+function setVc(k,val){
+  const v=Math.max(0,parse(val)),c=S.vendas._cfg||(S.vendas._cfg=CFG0());
+  if(k==='pct')c.pct=v;else if(k==='deb')c.deb=v;else if(k==='bol')c.bol=v;else if(/^c\d+$/.test(k)){c.cred=c.cred||{};c.cred[k.slice(1)]=v}
+  touchV('_cfg');
+}
+function setPf(id,k,f,t){
+  const s=S.vendas[id],p=s&&s.parc&&s.parc[k];if(!p)return;
+  if(f==='rec')p.rec=t.checked;else if(f==='d'&&/^\d{4}-\d{2}-\d{2}$/.test(t.value))p.d=t.value;
+  touchV(id);render(true);
+}
+function vFonteHtml(r){return ''}
+
 function vDespesas(m,c){
   const rows=c.desp.map(i=>i.auto
    ?`<div class="row${i.pago?' done':''}"><input type="checkbox" id="fx-c-${i.id}" data-id="${i.id}" data-f="pago"${i.pago?' checked':''} aria-label="Pago"><div class="fixed"><span class="nome">${i.auto==='farmacia'?'Farmácia':'Mercado'}</span><small>soma da lista ${i.auto==='farmacia'?'da farmácia':'de compras'}</small></div><div class="val">${money(c.val(i))}</div><button type="button" class="ghost" data-a="tab" data-tab="${i.auto}" id="fx-go-${i.auto}">Abrir</button></div>`
@@ -649,6 +769,33 @@ function vFarmacia(m,c){
   <div class="list">${rows||'<div class="empty">Nenhum item de farmácia.</div>'}</div>
   ${addRow('farmacia','Novo item (ex.: Vitamina)')}</div>`;
 }
+function vAnual(c,r){
+  const y=S.cur.slice(0,4), ids=Object.keys(S.meses).sort(), ano=ids.filter(i=>i.startsWith(y));
+  const dado=id=>calc(S.meses[id],id), cA=ano.map(dado), n=cA.length||1;
+  const mediaCom=cA.reduce((t,x)=>t+x.comissao,0)/n, mediaBruto=cA.reduce((t,x)=>t+x.bruto,0)/n;
+  const dep=+r.dependentes||0, auto=r.modo!=='manual';
+  const enc=b=>auto?encargos(b,S.cur,dep):{inss:b*(+r.inss||0)/100,irrf:0};
+  const d13=mediaBruto, e13=enc(d13), liq13=d13-e13.inss-e13.irrf, p1=d13/2, p2=liq13-p1;
+  const jan=ids.filter(i=>i<=S.cur).slice(-12), nF=jan.length||1, mediaF=jan.reduce((t,i)=>t+dado(i).bruto,0)/nF;
+  const fer=mediaF*4/3, eF=enc(fer), liqF=fer-eF.inss-eF.irrf;
+  const gozo=mediaF*20/30*4/3, abono=mediaF*10/30*4/3, eG=enc(gozo), liqV=gozo-eG.inss-eG.irrf+abono;
+  const sub=t=>`<div class="sec-lbl" style="margin:14px 0 4px">${t}</div>`;
+  const pl=(k,w)=>k===1?w:'meses';
+  return `<div class="card"><h3>13º e férias · estimativa de ${y}</h3>
+  <p class="hint">Com base em ${cA.length} ${pl(cA.length,'mês')} lançado${cA.length===1?'':'s'} em ${y}. Cada mês vale a comissão ou o piso, o que for maior. Quanto mais meses lançados, mais certa fica a estimativa.</p>
+  ${kv('Média das comissões do ano',brl(mediaCom))}${kv('Média da remuneração mensal',brl(mediaBruto))}
+  ${sub('13º salário (ano cheio)')}
+  ${kv('13º bruto',brl(d13))}${kv('1ª parcela · até 30/11 · sem descontos',brl(p1))}${kv('INSS sobre o 13º','− '+brl(e13.inss))}${kv('IRRF sobre o 13º','− '+brl(e13.irrf))}${kv('2ª parcela · até 20/12',brl(p2))}${kv('13º líquido',brl(liq13),'total')}
+  ${sub('Férias de 30 dias')}
+  ${kv('Média dos últimos '+jan.length+' '+pl(jan.length,'mês'),brl(mediaF))}${kv('Férias + 1/3 (bruto)',brl(fer))}${kv('INSS e IRRF','− '+brl(eF.inss+eF.irrf))}${kv('Férias líquidas',brl(liqF),'total')}
+  ${kv('Vendendo 10 dias (abono): líquido total',brl(liqV))}
+  <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Como funciona a regra</summary>
+  <div class="hint" style="margin-top:8px;line-height:1.5">
+  <b>13º (Lei 4.090/62 e Decreto 57.155/65):</b> vale 1/12 da remuneração por mês trabalhado. Como a comissão varia, a parte variável usa 1/11 da soma dos meses até novembro, e até 10 de janeiro o valor é acertado com o mês de dezembro (média do ano todo). A 1ª parcela é metade, paga de fevereiro a 30/11, sem descontos. A 2ª, até 20/12, desconta INSS e IR de tudo.<br><br>
+  <b>Férias (art. 142, §3º da CLT):</b> a base é a média das comissões dos 12 meses anteriores às férias, mais o 1/3 constitucional (art. 7º, XVII da Constituição). O pagamento vem até 2 dias antes de sair. Dá para vender 10 dias (abono, art. 143 da CLT): esse valor não tem INSS nem IR. O 13º não entra na média das férias.<br><br>
+  <b>Aqui:</b> o valor mensal usado é a comissão ou o piso (o que for maior), e o INSS e o IR são calculados pelas mesmas tabelas da aba, sobre cada valor separado. É uma estimativa: o 13º tem tabela própria no holerite, e o desconto real depende da sua folha. Confirme com o contador.
+  </div></details></div>`;
+}
 function vFaixas(c,r){
   const mes=S.cur,dep=+r.dependentes||0,y=+mes.slice(0,4),tab=inssTab(mes);
   const row=(b,cur)=>{const e=encargos(b,mes,dep),t=e.inss+e.irrf;return `<tr${cur?' class="cur"':''}><td>${cur?'Mari neste mês<br>':''}${money(b)}</td><td>${money(e.inss)}</td><td>${money(e.irrf)}</td><td>${money(t)}</td><td>${b?dec(Math.round(t/b*1000)/10):0}%</td><td>${money(b-t)}</td></tr>`};
@@ -663,11 +810,12 @@ function vRenda(m,c){
   const r=m.renda||{};
   const f=(k,l,v)=>`<label>${l}<input type="text" inputmode="decimal" id="fx-r-${k}" data-r="${k}" value="${v}"></label>`;
   return `<div style="display:flex;flex-direction:column;gap:16px">
-  <div class="card"><h3>Mari · comissão de vendas</h3><div class="form">${f('vendas','Total de vendas (R$)',money(r.vendas))}${f('comissao','Comissão (%)',dec(r.comissao))}${f('fixo','Salário fixo (R$)',money(r.fixo))}${f('desconto','Vale pego no mês (R$)',money(r.desconto))}${c.auto?f('dependentes','Dependentes no IR',dec(r.dependentes)):f('inss','INSS/IRRF (%)',dec(r.inss))}</div>
+  <div class="card"><h3>Mari · comissão de vendas</h3><div class="chips" style="margin:4px 0 12px"><span class="sec-lbl" style="align-self:center">Comissão</span><button type="button" data-a="fonte" data-v="total" id="fx-ft" aria-pressed="${!c.vm}">Total de vendas × %</button><button type="button" data-a="fonte" data-v="vendas" id="fx-fv" aria-pressed="${!!c.vm}">Pelas vendas lançadas</button></div>${c.vm?`<p class="hint" style="margin:0 0 10px">Cai neste mês pela aba Vendas: ${brl(c.vm.com)} (já caiu ${brl(c.vm.caiu)}, falta ${brl(c.vm.falta)}).</p>`:''}<div class="form">${c.vm?'':f('vendas','Total de vendas (R$)',money(r.vendas))+f('comissao','Comissão (%)',dec(r.comissao))}${f('piso','Piso garantido (R$)',money(r.piso==null?1900:r.piso))}${f('desconto','Vale pego no mês (R$)',money(r.desconto))}${c.auto?f('dependentes','Dependentes no IR',dec(r.dependentes)):f('inss','INSS/IRRF (%)',dec(r.inss))}</div>
    <div class="chips" style="margin:10px 0 12px"><span class="sec-lbl" style="align-self:center">Descontos</span><button type="button" data-a="modo" data-v="auto" id="fx-md-a" aria-pressed="${c.auto}">Tabela oficial</button><button type="button" data-a="modo" data-v="manual" id="fx-md-m" aria-pressed="${!c.auto}">Alíquota manual</button>${(c.auto?[]:[13.8,17.5,21.09]).map((a,n)=>`<button type="button" data-a="aliq" data-v="${a}" id="fx-al-${n}" aria-pressed="${+r.inss===a}">${dec(a)}%</button>`).join('')}</div>
-   ${kv('Comissão',brl(c.comissao))}${kv('Salário bruto',brl(c.bruto))}${c.auto?kv('INSS','− '+brl(c.inss))+kv('IRRF','− '+brl(c.irrf)):kv('INSS/IRRF','− '+brl(c.inss))}${kv('Vale pego no mês','− '+brl(+r.desconto||0))}${kv('Pagamento Mari',brl(c.mari),'total')}</div>
+   ${kv('Comissão',brl(c.comissao))}${kv('Piso garantido',brl(c.piso))}${kv(c.noPiso?'Vale o piso (comissão não passou)':'Vale a comissão (passou do piso)',brl(c.bruto),'')}${c.auto?kv('INSS','− '+brl(c.inss))+kv('IRRF','− '+brl(c.irrf)):kv('INSS/IRRF','− '+brl(c.inss))}${kv('Vale pego no mês','− '+brl(+r.desconto||0))}${kv('Pagamento Mari',brl(c.mari),'total')}</div>
   <div class="card"><h3>Cris</h3><div class="form">${f('cris','Pagamento (R$)',money(r.cris))}</div></div>
   <div class="card">${kv('Receita da família',brl(c.receita),'total')}</div>
+  ${vAnual(c,r)}
   ${vFaixas(c,r)}
   <div><button type="button" class="danger${S.sure==='mes'?' sure':''}" data-a="delmes" id="fx-delmes">${S.sure==='mes'?'Confirmar: apagar '+rotulo(S.cur)+'?':'Apagar este mês'}</button></div></div>`;
 }
@@ -679,8 +827,11 @@ $('#fx-view').addEventListener('change',e=>{
   if(d.f&&d.id){const v=d.f==='pago'?t.checked:d.f==='nome'?t.value.trim()||'Sem nome':Math.max(0,parse(t.value));patch({itens:{[d.id]:{[d.f]:v}}});render(true)}
   else if(d.r){patch({renda:{[d.r]:Math.max(0,parse(t.value))}});render(true)}
   else if(d.m){patch({[d.m]:t.checked});render(true)}
+  else if(d.vf){setVf(d.vf,t.value);if(d.vf==='forma'||d.vf==='n')render(true);else{const pv=$('#fx-prev');if(pv)pv.innerHTML=prevHtml()}}
+  else if(d.vc){setVc(d.vc,t.value);render(true)}
+  else if(d.pf){setPf(d.sv,+d.k,d.pf,t)}
 });
-$('#fx-view').addEventListener('input',e=>{if(e.target.id==='fx-busca'){S.busca=e.target.value;render(true)}});
+$('#fx-view').addEventListener('input',e=>{const t=e.target;if(t.id==='fx-busca'){S.busca=t.value;render(true)}else if(t.dataset&&t.dataset.vf&&t.dataset.vf!=='forma'&&t.dataset.vf!=='n'){setVf(t.dataset.vf,t.value);const pv=$('#fx-prev');if(pv)pv.innerHTML=prevHtml()}});
 $('#fx-view').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('fx-novo-')){e.preventDefault();add(e.target.id.slice(8))}});
 $('#fx-view').addEventListener('blur',()=>{if(wantRender)setTimeout(()=>render(),0)},true);
 function add(tipo){
@@ -702,6 +853,11 @@ $('#fx-view').addEventListener('click',e=>{
   if(a==='filtro')S.filtro=b.dataset.k;
   if(a==='mais'||a==='menos'){const q=+item(id).qtd||0;patch({itens:{[id]:{qtd:Math.max(0,Math.round((q+(a==='mais'?1:-1))*1000)/1000)}}})}
   if(a==='modo')patch({renda:{modo:b.dataset.v}});
+  if(a==='fonte')patch({renda:{fonte:b.dataset.v}});
+  if(a==='vsalvar')return salvarVenda();
+  if(a==='vopen')S.vOpen=S.vOpen===id?null:id;
+  if(a==='vvenc'){const h=hojeStr();vendasMes(S.cur).L.forEach(i=>{if(!i.p.rec&&i.p.d<=h){i.p.rec=true;touchV(i.s.id)}})}
+  if(a==='vdel'){if(S.sure===id){delete S.vendas[id];VT[id]=Date.now();saveV();saveVT();hookVD(id,VT[id])}else keep=id}
   if(a==='aliq')patch({renda:{inss:+b.dataset.v}});
   if(a==='del'){if(S.sure===id)patch({itens:{[id]:{apagado:true}}});else keep=id}
   if(a==='delmes'){if(S.sure==='mes'){const mid=S.cur;delete S.meses[mid];TOMB[mid]=Date.now();saveTomb();saveAll();hookDel(mid,TOMB[mid]);S.cur=Object.keys(S.meses).sort().pop()||null;store.set('fx-mes',S.cur||'')}else keep='mes'}
@@ -736,6 +892,10 @@ window.Fluxo={
   remoteSet(id,m,upd){m.upd=upd;S.meses[id]=m;delete TOMB[id];saveAll();saveTomb();if(!S.cur||!S.meses[S.cur]){S.cur=id;store.set('fx-mes',id)}render()},
   remoteDel(id,ts){delete S.meses[id];TOMB[id]=Math.max(TOMB[id]||0,ts);saveAll();saveTomb();if(S.cur===id){S.cur=Object.keys(S.meses).sort().pop()||null}render()},
   setTomb(id,ts){TOMB[id]=ts;saveTomb()},
+  hookV(c,d){hookVC=c;hookVD=d}, vendas:()=>S.vendas, vtombs:()=>VT,
+  remoteSetV(id,o,upd){o.upd=upd;S.vendas[id]=o;delete VT[id];saveV();saveVT();render()},
+  remoteDelV(id,ts){delete S.vendas[id];VT[id]=Math.max(VT[id]||0,ts);saveV();saveVT();render()},
+  setTombV(id,ts){VT[id]=ts;saveVT()},
   setMsg(t){S.msg=t;setStatus()}
 };
 document.addEventListener('DOMContentLoaded',()=>render(true));
@@ -1656,7 +1816,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
   var LSF = 'financas:familia', LSD = 'financas:apagados', LSMU = 'financas:metas-upd';
   var apag = {}; try { apag = JSON.parse(localStorage.getItem(LSD) || '{}') || {}; } catch (e) {}
   var metasUpd = 0; try { metasUpd = +localStorage.getItem(LSMU) || 0; } catch (e) {}
-  var fsdb = null, famPath = null, unsubT = null, unsubM = null, unsubX = null, firstT = true, firstX = true, persTried = false, fxTimers = {};
+  var fsdb = null, famPath = null, unsubT = null, unsubM = null, unsubX = null, unsubV = null, firstT = true, firstX = true, firstV = true, persTried = false, fxTimers = {};
   function saveApag() { try { localStorage.setItem(LSD, JSON.stringify(apag)); } catch (e) {} }
   function getFam() { try { return localStorage.getItem(LSF) || ''; } catch (e) { return ''; } }
   function fmtCode(c) { return c.replace(/(.{5})(?=.)/g, '$1-'); }
@@ -1694,7 +1854,27 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
     if (!famPath || !fsdb) return;
     try { fsdb.doc(famPath + '/config/metas').set({ json: JSON.stringify(metas), upd: metasUpd }).catch(syncErr); } catch (e) { syncErr(); }
   }
+  // lançamento vindo do cartão (Atalhos do iPhone): chega "cru" e é arrumado aqui
+  function normTx(id, r) {
+    r = clean(r); r.id = id;
+    var v = typeof r.valor === 'number' ? r.valor : parseValor(String(r.valor == null ? '' : r.valor));
+    r.valor = Math.round(Math.abs(v) * 100) / 100;
+    if (!(r.valor > 0)) return null;
+    r.tipo = r.tipo === 'receita' ? 'receita' : 'gasto';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(r.data || '')) r.data = todayStr();
+    r.desc = String(r.desc || 'Cartão').trim().slice(0, 60) || 'Cartão';
+    if (!r.cat) {
+      var d0 = norm(r.desc), hit = txs.filter(function (t) { return t.tipo === r.tipo && norm(t.desc) === d0; })[0];
+      r.cat = hit ? hit.cat : 'Outros';
+    }
+    return r;
+  }
   function applyRemoteTx(id, r) {
+    var needPush = false;
+    if (!r.del && (typeof r.valor !== 'number' || !r.id || !r.upd)) {
+      var n = normTx(id, r); if (!n) return false;
+      n.upd = Date.now(); r = n; needPush = true;
+    }
     var ru = +r.upd || 0, i = txs.findIndex(function (t) { return t.id === id; }), l = i > -1 ? txs[i] : null;
     if (r.del) {
       if ((apag[id] || 0) < ru) apag[id] = ru;
@@ -1704,7 +1884,11 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
     }
     var du = apag[id] || 0;
     if (!l && du > ru) { pushDel(id, du); return false; }
-    if (!l) { delete apag[id]; txs.push(clean(r)); return true; }
+    if (!l) {
+      delete apag[id]; txs.push(clean(r));
+      if (needPush) { pushTx(r); $('note').textContent = 'Novo lançamento do cartão: ' + r.desc + ' · ' + brl(r.valor); }
+      return true;
+    }
     if (ru > (l.upd || 0)) { txs[i] = clean(r); return true; }
     if ((l.upd || 0) > ru) pushTx(l);
     return false;
@@ -1786,8 +1970,39 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
   if (window.Fluxo) window.Fluxo.hook(function (id) {
     clearTimeout(fxTimers[id]); fxTimers[id] = setTimeout(function () { pushMes(id); }, 500);
   }, function (id, ts) { pushMesDel(id, ts); });
+  function pushVenda(id) {
+    if (!famPath || !fsdb || !window.Fluxo) return;
+    var o = window.Fluxo.vendas()[id]; if (!o) return;
+    try { fsdb.collection(famPath + '/vendas').doc(id).set({ json: JSON.stringify(o), upd: o.upd || 1 }).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function pushVendaDel(id, ts) {
+    if (!famPath || !fsdb) return;
+    try { fsdb.collection(famPath + '/vendas').doc(id).set({ del: true, upd: ts }).catch(syncErr); } catch (e) { syncErr(); }
+  }
+  function onVendasSnap(snap) {
+    var F = window.Fluxo; if (!F) return;
+    var fromCache = !!(snap.metadata && snap.metadata.fromCache), M = F.vendas(), T = F.vtombs();
+    snap.docChanges().forEach(function (c) {
+      if (c.type === 'removed') return;
+      var d = c.doc; if (d.metadata && d.metadata.hasPendingWrites) return;
+      var r = d.data(), id = d.id, ru = +r.upd || 0, l = M[id], lu = l ? (l.upd || 0) : 0, du = T[id] || 0;
+      if (r.del) { if (l && ru >= lu) F.remoteDelV(id, ru); else F.setTombV(id, Math.max(du, ru)); return; }
+      if (!l && du > ru) { pushVendaDel(id, du); return; }
+      if (!l || ru > lu) { try { F.remoteSetV(id, JSON.parse(r.json), ru); } catch (e) {} }
+      else if (lu > ru) pushVenda(id);
+    });
+    if (firstV && !fromCache) {
+      firstV = false;
+      var seen = {}; snap.docs.forEach(function (d) { seen[d.id] = 1; });
+      Object.keys(M).forEach(function (id) { if (!seen[id]) { if (!M[id].upd) M[id].upd = 1; pushVenda(id); } });
+      Object.keys(T).forEach(function (id) { if (!seen[id]) pushVendaDel(id, T[id]); });
+    }
+  }
+  if (window.Fluxo) window.Fluxo.hookV(function (id) {
+    clearTimeout(fxTimers['v' + id]); fxTimers['v' + id] = setTimeout(function () { pushVenda(id); }, 500);
+  }, function (id, ts) { pushVendaDel(id, ts); });
   function syncStop() {
-    if (unsubT) { unsubT(); unsubT = null; } if (unsubM) { unsubM(); unsubM = null; } if (unsubX) { unsubX(); unsubX = null; }
+    if (unsubT) { unsubT(); unsubT = null; } if (unsubM) { unsubM(); unsubM = null; } if (unsubX) { unsubX(); unsubX = null; } if (unsubV) { unsubV(); unsubV = null; }
     famPath = null;
   }
   function syncStart(code) {
@@ -1800,9 +2015,25 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
       unsubT = fsdb.collection(famPath + '/txs').onSnapshot(onTxSnap, syncErr);
       unsubM = fsdb.doc(famPath + '/config/metas').onSnapshot(onMetaSnap, syncErr);
       firstX = true; unsubX = fsdb.collection(famPath + '/meses').onSnapshot(onMesSnap, syncErr);
+      firstV = true; unsubV = fsdb.collection(famPath + '/vendas').onSnapshot(onVendasSnap, syncErr);
     });
   }
   function normCode(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  function copyText(t, btn) {
+    var ok = function () { var o = btn.textContent; btn.textContent = 'Copiado ✓'; setTimeout(function () { btn.textContent = o; }, 1800); };
+    var fb = function () {
+      var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
+      ta.focus(); ta.select(); try { document.execCommand('copy'); ok(); } catch (e) { btn.textContent = 'Não consegui copiar'; } document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fb); else fb();
+  }
+  $('s-cp-url').onclick = function () {
+    if (!famPath) { this.textContent = 'Aguarde conectar…'; return; }
+    copyText('https://firestore.googleapis.com/v1/projects/' + FBCFG.projectId + '/databases/(default)/documents/' + famPath + '/txs?key=' + FBCFG.apiKey, this);
+  };
+  $('s-cp-tpl').onclick = function () {
+    copyText('{"fields":{"tipo":{"stringValue":"gasto"},"desc":{"stringValue":"COMERCIANTE"},"valor":{"stringValue":"VALOR"},"data":{"stringValue":"DATA"},"origem":{"stringValue":"cartao"}}}', this);
+  };
   function renderSync() {
     var c = getFam();
     $('s-off').hidden = !!c; $('s-on').hidden = !c;
