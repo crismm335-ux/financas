@@ -223,6 +223,11 @@ input[type=text], input[type=date] {
 .cal-today { border: 0; background: transparent; color: var(--accent); font-weight: 700; font-size: 13px; padding: 8px 6px; }
 .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip.fresh { border-style: dashed; }
+.catask { margin-top:10px; padding:10px 12px; border:1px dashed var(--line); border-radius:12px; font-size:14px }
+.catask b { word-break: break-word }
+.catask .ops { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap }
+.catask .ops button { flex:1; min-width:120px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:inherit; font:inherit; font-size:14px; cursor:pointer }
+.catask .ops button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600 }
 .hint { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
 .chip.sel { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
 .cwrap { display: inline-flex; max-width: 100%; }
@@ -348,7 +353,7 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 29</p>
+  <p class="note" style="opacity:.6">Versão 30</p>
 </div>
 <div id="v-fluxo" hidden>
   <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
@@ -531,7 +536,8 @@ input[type=text], input[type=date] {
     <div>
       <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px">Categoria</div>
       <div class="chips" id="chips"></div>
-      <div class="hint">Tudo que você digita na descrição vira uma categoria aqui. Toque no × para remover uma.</div>
+      <div id="catask" class="catask" hidden></div>
+      <div class="hint">Ao digitar uma descrição nova, você escolhe se ela vira uma categoria ou fica só como descrição. Toque no × para remover uma categoria criada.</div>
     </div>
     <p class="err" id="err" role="alert"></p>
     <div class="actions">
@@ -917,7 +923,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
 
   var txs = [];
   var month = todayStr().slice(0, 7);
-  var tipo = 'gasto', cat = CATS.gasto[0];
+  var tipo = 'gasto', cat = CATS.gasto[0], newCat = false;
   var confirmId = null, confirmTimer = null, editingId = null, chartMode = 'meses';
   var col = null; // coleção do banco quando disponível
 
@@ -1059,7 +1065,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
       seen[k] = 1; extra.push(n);
     };
     txs.slice().sort(function (a, b) { return a.data < b.data ? 1 : a.data > b.data ? -1 : 0; }).forEach(function (t) {
-      if (t.tipo === tipo) { push(t.cat); push(t.desc); }
+      if (t.tipo === tipo) push(t.cat);
     });
     extra = extra.slice(0, 30);
     var typed = $('desc').value.trim(), tl = typed.toLowerCase();
@@ -1086,11 +1092,18 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
       return '<span class="cwrap"><button type="button" class="chip' + (on ? ' sel' : '') + '" data-cat="' + esc(c) + '" aria-pressed="' + on + '">' + esc(c) + '</button>' +
         '<button type="button" class="chip x' + (on ? ' sel' : '') + '" data-hide="' + esc(c) + '" aria-label="Remover categoria ' + esc(c) + '">×</button></span>';
     }).join('');
-    if (L.fresh) h += chip(L.fresh, ' fresh');
+    if (L.fresh && newCat) { cat = L.fresh; h += chip(L.fresh, ' fresh').replace('aria-pressed="false"', 'aria-pressed="true"'); }
     $('chips').innerHTML = h;
+    var ask = $('catask');
+    if (L.fresh) {
+      ask.hidden = false;
+      ask.innerHTML = 'Transformar <b>“' + esc(L.fresh) + '”</b> em categoria?<div class="ops">' +
+        '<button type="button" data-nc="1" aria-pressed="' + newCat + '">Sim, criar categoria</button>' +
+        '<button type="button" data-nc="0" aria-pressed="' + !newCat + '">Não, só descrição</button></div>';
+    } else { ask.hidden = true; ask.innerHTML = ''; }
   }
   function setTipo(t) {
-    tipo = t; cat = CATS[t][0];
+    tipo = t; cat = CATS[t][0]; newCat = false;
     $('t-gasto').setAttribute('aria-pressed', t === 'gasto');
     $('t-receita').setAttribute('aria-pressed', t === 'receita');
     renderChips();
@@ -1121,7 +1134,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
   }
   function pickDate(k) { $('data').value = k; showDate(); toggleCal(false); }
   function openSheet(tx) {
-    editingId = tx ? tx.id : null;
+    editingId = tx ? tx.id : null; newCat = false;
     setTipo(tx ? tx.tipo : 'gasto');
     if (tx) { cat = tx.cat; renderChips(); }
     $('valor').value = tx ? maskCents(Math.round(tx.valor * 100)) : '';
@@ -1178,7 +1191,16 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
   $('sheet').addEventListener('pointerdown', function (e) {
     if (!$('cal').hidden && !e.target.closest('#cal') && !e.target.closest('#databtn')) toggleCal(false);
   });
-  $('desc').addEventListener('input', renderChips);
+  $('desc').addEventListener('input', function () {
+    if (newCat) { cat = $('desc').value.trim(); var tp = chipLists(); if (!tp.fresh) { newCat = false; cat = CATS[tipo][0]; } }
+    renderChips();
+  });
+  $('catask').onclick = function (e) {
+    var b = e.target.closest('[data-nc]'); if (!b) return;
+    var on = b.getAttribute('data-nc') === '1';
+    if (!on && newCat) cat = CATS[tipo][0];
+    newCat = on; renderChips();
+  };
   $('add').onclick = function () { openSheet(null); };
   $('cancel').onclick = closeSheet;
   $('bd').onclick = closeSheet;
@@ -1189,7 +1211,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
     var x = e.target.closest('[data-hide]');
     if (x) { hideCat(x.getAttribute('data-hide')); return; }
     var b = e.target.closest('[data-cat]'); if (!b) return;
-    cat = b.getAttribute('data-cat'); renderChips();
+    cat = b.getAttribute('data-cat'); newCat = false; renderChips();
   };
   $('list').onclick = function (e) {
     var ed = e.target.closest('[data-edit]');
