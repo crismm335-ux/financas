@@ -235,6 +235,14 @@ input[type=text], input[type=date] {
 .cwrap .chip.x { border-radius: 0 20px 20px 0; border-left: 0; padding: 8px 12px; font-size: 16px; line-height: 1; color: var(--muted); }
 .cwrap .chip.x.sel { color: var(--on-accent); }
 .actions { position: sticky; bottom: 0; z-index: 2; background: var(--surface); padding-top: 10px; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); margin-bottom: calc(-18px - env(safe-area-inset-bottom, 0px)); box-shadow: 0 -10px 12px -10px rgba(0,0,0,.3); }
+.rs-chips { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 }
+.rs-chips button { border:1px solid var(--line); background:var(--surface-2); color:inherit; border-radius:999px; padding:8px 14px; font:inherit; font-size:14px }
+.rs-chips button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:700 }
+.rs-big { font-size:30px; font-weight:800; margin:2px 0 }
+.rs-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:15px }
+.rs-row input[type=checkbox] { width:22px; height:22px; flex:none }
+.rs-row span:nth-child(2) { flex:1; min-width:0 }
+.rs-in { width:100%; box-sizing:border-box; padding:11px 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:inherit; font:inherit; font-size:16px }
 .linkbtn { border: 1px solid var(--line); background: var(--surface-2); color: var(--accent); border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: 13px; }
 .sheet .iwrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
 .ibar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
@@ -320,6 +328,11 @@ input[type=text], input[type=date] {
     </div>
   </section>
 
+  <section class="card" id="rescard" aria-label="Reserva de emergência">
+    <div class="chead"><h2 style="text-transform:none">Reserva de emergência</h2></div>
+    <div id="res"></div>
+  </section>
+
   <section class="card" id="metascard" aria-label="Metas">
     <div class="chead"><h2 id="mtitle" style="text-transform:none">Metas</h2><button type="button" class="linkbtn" id="medit">Definir metas</button></div>
     <div id="metas"></div>
@@ -353,7 +366,7 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 30</p>
+  <p class="note" style="opacity:.6">Versão 31</p>
 </div>
 <div id="v-fluxo" hidden>
   <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
@@ -971,6 +984,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
     drawChart();
     lastTotals = [rec, gas, by];
     renderMetas(rec, gas, by);
+    renderReserva();
 
     var entries = Object.keys(by).map(function (k) { return [k, by[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
     $('catcard').hidden = entries.length === 0;
@@ -1331,6 +1345,58 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
   });
 
 
+
+  // ---------- reserva de emergência ----------
+  var LSR = 'financas:reserva';
+  var DEF_ESS = ['moradia', 'alimentação', 'transporte', 'saúde', 'contas'];
+  var resv = { ess: null, meses: 6, guardado: 0 };
+  try { var rr = JSON.parse(localStorage.getItem(LSR) || 'null'); if (rr) resv = { ess: Array.isArray(rr.ess) ? rr.ess : null, meses: +rr.meses || 6, guardado: +rr.guardado || 0 }; } catch (e) {}
+  function saveResv() { try { localStorage.setItem(LSR, JSON.stringify(resv)); } catch (e) {} }
+  function isEss(c) { var k = String(c).toLowerCase(); return (resv.ess || DEF_ESS).indexOf(k) > -1; }
+  function renderReserva() {
+    var cur = todayStr().slice(0, 7), mons = {}, gas = txs.filter(function (t) { return t.tipo === 'gasto' && t.data; });
+    gas.forEach(function (t) { mons[t.data.slice(0, 7)] = 1; });
+    var ks = Object.keys(mons).sort();
+    if (ks.length > 1 && ks[ks.length - 1] === cur) ks.pop();
+    ks = ks.slice(-6);
+    var el = $('res');
+    if (!ks.length) { el.innerHTML = '<p class="hint" style="margin:0">Lance seus gastos por alguns meses e o app calcula aqui quanto você precisa guardar.</p>'; return; }
+    var sum = {}, n = ks.length;
+    gas.forEach(function (t) { if (ks.indexOf(t.data.slice(0, 7)) > -1) sum[t.cat] = (sum[t.cat] || 0) + t.valor; });
+    var cats = Object.keys(sum).sort(function (a, b) { return sum[b] - sum[a]; });
+    var ess = 0, tot = 0;
+    cats.forEach(function (c) { tot += sum[c] / n; if (isEss(c)) ess += sum[c] / n; });
+    var alvo = ess * resv.meses, g = resv.guardado, pct = alvo > 0 ? Math.min(100, g / alvo * 100) : 0, cobre = ess > 0 ? g / ess : 0;
+    var h = '<p class="hint" style="margin:0">Média dos últimos ' + n + (n === 1 ? ' mês' : ' meses') + ' com lançamentos. Marque o que é essencial.</p>' +
+      '<div class="rs-chips" role="group" aria-label="Meses de reserva">' + [3, 6, 12].map(function (m) { return '<button type="button" data-rm="' + m + '" aria-pressed="' + (resv.meses === m) + '">' + m + ' meses</button>'; }).join('') + '</div>' +
+      '<div class="hint" style="margin:0">Reserva ideal para ' + resv.meses + ' meses só com o essencial</div>' +
+      '<div class="rs-big num">' + brl(alvo) + '</div>' +
+      '<div class="hint" style="margin:0 0 8px">Essencial por mês: <b>' + brl(ess) + '</b> de ' + brl(tot) + ' de gastos médios (' + (tot > 0 ? Math.round(ess / tot * 100) : 0) + '%)</div>' +
+      '<div class="bar"><i class="' + (pct >= 100 ? 'b-ok' : '') + '" style="width:' + Math.max(pct, 1) + '%"></i></div>' +
+      '<div class="hint">Guardado: ' + brl(g) + ' · cobre ' + (Math.round(cobre * 10) / 10).toString().replace('.', ',') + ' meses · ' + (g >= alvo && alvo > 0 ? 'meta atingida' : 'faltam ' + brl(Math.max(0, alvo - g))) + '</div>' +
+      '<label class="hint" style="display:block;margin:10px 0 4px" for="res-g">Quanto vocês já têm guardado (R$)</label><input class="rs-in" id="res-g" inputmode="decimal" placeholder="0,00" value="' + (g ? String(g).replace('.', ',') : '') + '">' +
+      '<div style="font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 2px">Gastos médios por mês</div>' +
+      cats.map(function (c, i) {
+        return '<label class="rs-row"><input type="checkbox" data-re="' + esc(c) + '"' + (isEss(c) ? ' checked' : '') + '><span>' + esc(c) + '</span><span class="num">' + brl(sum[c] / n) + '</span></label>';
+      }).join('');
+    if (document.activeElement && document.activeElement.id === 'res-g') return;
+    el.innerHTML = h;
+  }
+  $('res').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-rm]'); if (!b) return;
+    resv.meses = +b.getAttribute('data-rm'); saveResv(); renderReserva();
+  });
+  $('res').addEventListener('change', function (e) {
+    var c = e.target.getAttribute && e.target.getAttribute('data-re');
+    if (c != null && e.target.type === 'checkbox') {
+      var cur = (resv.ess || DEF_ESS).slice(), k = c.toLowerCase(), i = cur.indexOf(k);
+      if (e.target.checked && i < 0) cur.push(k); else if (!e.target.checked && i > -1) cur.splice(i, 1);
+      resv.ess = cur; saveResv(); renderReserva(); return;
+    }
+    if (e.target.id === 'res-g') {
+      var v = parseValor(e.target.value); resv.guardado = v > 0 ? v : 0; saveResv(); e.target.blur(); renderReserva();
+    }
+  });
 
   // ---------- metas ----------
   var LSM = 'financas:metas';
