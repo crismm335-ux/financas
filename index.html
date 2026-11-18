@@ -371,7 +371,7 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 32</p>
+  <p class="note" style="opacity:.6">Versão 33</p>
 </div>
 <div id="v-fluxo" hidden>
   <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
@@ -986,10 +986,10 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
     $('saldo').className = 'balance num ' + (saldo >= 0 ? 'in' : 'out');
     $('rec').textContent = brl(rec);
     $('gas').textContent = brl(gas);
-    drawChart();
     lastTotals = [rec, gas, by];
-    renderMetas(rec, gas, by);
-    renderReserva();
+    try { drawChart(); } catch (e) { if (window.console) console.error('drawChart', e); }
+    try { renderMetas(rec, gas, by); } catch (e) { if (window.console) console.error('renderMetas', e); }
+    try { renderReserva(); } catch (e) { if (window.console) console.error('renderReserva', e); }
 
     var entries = Object.keys(by).map(function (k) { return [k, by[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
     $('catcard').hidden = entries.length === 0;
