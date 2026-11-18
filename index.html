@@ -238,6 +238,11 @@ input[type=text], input[type=date] {
 .rs-chips { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 }
 .rs-chips button { border:1px solid var(--line); background:var(--surface-2); color:inherit; border-radius:999px; padding:8px 14px; font:inherit; font-size:14px }
 .rs-chips button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:700 }
+.rs-det { margin-top:14px; border-top:1px solid var(--line); padding-top:4px }
+.rs-det summary { cursor:pointer; padding:10px 0; font-weight:600; font-size:14px; color:var(--accent); list-style:none }
+.rs-det summary::-webkit-details-marker { display:none }
+.rs-det summary::after { content:' ▾' }
+.rs-det[open] summary::after { content:' ▴' }
 .rs-big { font-size:30px; font-weight:800; margin:2px 0 }
 .rs-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:15px }
 .rs-row input[type=checkbox] { width:22px; height:22px; flex:none }
@@ -366,7 +371,7 @@ input[type=text], input[type=date] {
   </section>
 
   <p class="note" id="note"></p>
-  <p class="note" style="opacity:.6">Versão 31</p>
+  <p class="note" style="opacity:.6">Versão 32</p>
 </div>
 <div id="v-fluxo" hidden>
   <div class="fx-head"><select id="fx-mes" aria-label="Mês"></select><button type="button" id="fx-novo">Novo mês</button></div>
@@ -1349,7 +1354,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
   // ---------- reserva de emergência ----------
   var LSR = 'financas:reserva';
   var DEF_ESS = ['moradia', 'alimentação', 'transporte', 'saúde', 'contas'];
-  var resv = { ess: null, meses: 6, guardado: 0 };
+  var resv = { ess: null, meses: 6, guardado: 0 }, resOpen = false;
   try { var rr = JSON.parse(localStorage.getItem(LSR) || 'null'); if (rr) resv = { ess: Array.isArray(rr.ess) ? rr.ess : null, meses: +rr.meses || 6, guardado: +rr.guardado || 0 }; } catch (e) {}
   function saveResv() { try { localStorage.setItem(LSR, JSON.stringify(resv)); } catch (e) {} }
   function isEss(c) { var k = String(c).toLowerCase(); return (resv.ess || DEF_ESS).indexOf(k) > -1; }
@@ -1367,7 +1372,7 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
     var ess = 0, tot = 0;
     cats.forEach(function (c) { tot += sum[c] / n; if (isEss(c)) ess += sum[c] / n; });
     var alvo = ess * resv.meses, g = resv.guardado, pct = alvo > 0 ? Math.min(100, g / alvo * 100) : 0, cobre = ess > 0 ? g / ess : 0;
-    var h = '<p class="hint" style="margin:0">Média dos últimos ' + n + (n === 1 ? ' mês' : ' meses') + ' com lançamentos. Marque o que é essencial.</p>' +
+    var h = '<p class="hint" style="margin:0">Média dos últimos ' + n + (n === 1 ? ' mês' : ' meses') + ' com lançamentos.</p>' +
       '<div class="rs-chips" role="group" aria-label="Meses de reserva">' + [3, 6, 12].map(function (m) { return '<button type="button" data-rm="' + m + '" aria-pressed="' + (resv.meses === m) + '">' + m + ' meses</button>'; }).join('') + '</div>' +
       '<div class="hint" style="margin:0">Reserva ideal para ' + resv.meses + ' meses só com o essencial</div>' +
       '<div class="rs-big num">' + brl(alvo) + '</div>' +
@@ -1375,13 +1380,15 @@ document.addEventListener('DOMContentLoaded',()=>render(true));
       '<div class="bar"><i class="' + (pct >= 100 ? 'b-ok' : '') + '" style="width:' + Math.max(pct, 1) + '%"></i></div>' +
       '<div class="hint">Guardado: ' + brl(g) + ' · cobre ' + (Math.round(cobre * 10) / 10).toString().replace('.', ',') + ' meses · ' + (g >= alvo && alvo > 0 ? 'meta atingida' : 'faltam ' + brl(Math.max(0, alvo - g))) + '</div>' +
       '<label class="hint" style="display:block;margin:10px 0 4px" for="res-g">Quanto vocês já têm guardado (R$)</label><input class="rs-in" id="res-g" inputmode="decimal" placeholder="0,00" value="' + (g ? String(g).replace('.', ',') : '') + '">' +
-      '<div style="font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 2px">Gastos médios por mês</div>' +
+      '<details class="rs-det" id="rs-det"' + (resOpen ? ' open' : '') + '><summary>Ajustar o que é essencial</summary>' +
+      '<p class="hint" style="margin:8px 0 2px">Marque as categorias que contam como essenciais. Médias por mês:</p>' +
       cats.map(function (c, i) {
         return '<label class="rs-row"><input type="checkbox" data-re="' + esc(c) + '"' + (isEss(c) ? ' checked' : '') + '><span>' + esc(c) + '</span><span class="num">' + brl(sum[c] / n) + '</span></label>';
-      }).join('');
+      }).join('') + '</details>';
     if (document.activeElement && document.activeElement.id === 'res-g') return;
     el.innerHTML = h;
   }
+  $('res').addEventListener('toggle', function (e) { if (e.target && e.target.id === 'rs-det') resOpen = e.target.open; }, true);
   $('res').addEventListener('click', function (e) {
     var b = e.target.closest('[data-rm]'); if (!b) return;
     resv.meses = +b.getAttribute('data-rm'); saveResv(); renderReserva();
